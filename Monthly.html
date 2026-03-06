@@ -47,6 +47,7 @@
                 website: "www.JoePine.com",
                 headshotUrl: "Joe (1).JPG",
                 logoUrl: "KellerWilliams_Realty_LeadingEdge_Logo_RGB.png",
+                platinumLogoUrl: "Platinum_Logo.png",
                 kwSearchBase: "https://joepine.kw.com/search/sale?viewport=42.17805594042946%2C-70.57921899499948%2C41.454456956957046%2C-71.89757836999948&price=null%2C"
             };
 
@@ -157,11 +158,12 @@
                     <nav className="bg-white py-4 px-6 sticky top-0 z-50 shadow-md border-b-4 border-[#b40101]">
                         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
                             <div className="flex items-center gap-4">
-                                <img src={JOE_INFO.logoUrl} alt="KW Logo" className="h-10 w-auto" onError={(e) => { e.target.style.display = 'none'; }} />
+                                <img src={JOE_INFO.logoUrl} alt="Keller Williams Logo" className="h-10 w-auto" onError={(e) => { e.target.style.display = 'none'; }} />
+                                <div className="h-8 w-[1px] bg-gray-200 hidden sm:block" />
+                                <img src={JOE_INFO.platinumLogoUrl} alt="Platinum Group Logo" className="h-10 w-auto" onError={(e) => { e.target.style.display = 'none'; }} />
                                 <div className="h-8 w-[1px] bg-gray-200 hidden sm:block" />
                                 <div className="hidden sm:block">
-                                    <p className="text-xs font-black uppercase tracking-widest text-[#212121]">{JOE_INFO.team}</p>
-                                    <p className="text-[10px] text-gray-400 uppercase font-bold">{JOE_INFO.brokerage}</p>
+                                    <p className="text-[10px] text-gray-400 uppercase leading-tight font-bold">{JOE_INFO.brokerage}</p>
                                 </div>
                             </div>
                             <div className="text-center sm:text-right">
@@ -278,14 +280,18 @@
                                 </div>
 
                                 <div className="mt-12 flex flex-col md:flex-row items-center gap-8 p-8 bg-white rounded-lg border border-gray-200 text-left font-black">
-                                    <div className="w-32 h-32 rounded-full border-4 border-[#b40101] overflow-hidden shrink-0 shadow-lg">
+                                    <div className="w-32 h-32 rounded-full border-4 border-[#b40101] overflow-hidden shrink-0 shadow-lg bg-gray-50">
                                         <img src={JOE_INFO.headshotUrl} alt={JOE_INFO.name} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
                                     </div>
                                     <div className="flex-1">
                                         <h4 className="text-2xl font-black text-[#212121] uppercase italic leading-none">{JOE_INFO.name}</h4>
-                                        <p className="text-xs text-gray-500 font-black uppercase mt-1 mb-4">{JOE_INFO.team} | {JOE_INFO.brokerage}</p>
+                                        <div className="mt-1 mb-4 flex flex-wrap items-center gap-3">
+                                            <img src={JOE_INFO.platinumLogoUrl} alt="Platinum Logo" className="h-6 w-auto" onError={(e) => { e.target.style.display = 'none'; }} />
+                                            <span className="text-gray-300">|</span>
+                                            <p className="text-xs text-gray-500 font-black uppercase">{JOE_INFO.brokerage}</p>
+                                        </div>
                                         <p className="text-sm text-gray-600 leading-relaxed font-medium mb-6">I am here to help you navigate every step of the home buying journey in Rhode Island and Massachusetts. Let us turn these estimates into a plan for your future home.</p>
-                                        <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm font-black">
+                                        <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm font-black text-[#212121]">
                                             <a href={`tel:${JOE_INFO.phone}`} className="flex items-center gap-2 hover:text-[#b40101]"><Icon name="Phone" className="text-[#b40101]" /> {JOE_INFO.phone}</a>
                                             <a href={`mailto:${JOE_INFO.email}`} className="flex items-center gap-2 hover:text-[#b40101]"><Icon name="Mail" className="text-[#b40101]" /> {JOE_INFO.email}</a>
                                             <a href={`https://${JOE_INFO.website}`} target="_blank" className="flex items-center gap-2 hover:text-[#b40101]"><Icon name="Globe" className="text-[#b40101]" /> {JOE_INFO.website}</a>
@@ -311,7 +317,7 @@
                                                 <div><label className="block text-[10px] font-black text-gray-400 uppercase mb-1">Email</label><input required type="email" className="w-full bg-gray-50 border border-gray-200 rounded py-3 px-4 outline-none focus:border-[#b40101]" /></div>
                                                 <div><label className="block text-[10px] font-black text-gray-400 uppercase mb-1">Phone</label><input required type="tel" className="w-full bg-gray-50 border border-gray-200 rounded py-3 px-4 outline-none focus:border-[#b40101]" /></div>
                                             </div>
-                                            <button type="submit" className="w-full bg-[#212121] hover:bg-[#b40101] text-white font-black py-4 rounded uppercase text-xs">Send to Joe Pine</button>
+                                            <button type="submit" className="w-full bg-[#212121] hover:bg-[#b40101] text-white font-black py-4 rounded uppercase text-xs shadow-lg transition-all">Send to Joe Pine</button>
                                         </form>
                                     ) : (
                                         <div className="text-center py-12 space-y-6">
