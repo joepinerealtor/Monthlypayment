@@ -11,12 +11,32 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
-        body { font-family: 'Montserrat', sans-serif; }
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            background-color: #f8f9fa;
+        }
         .animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        select { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem; -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .premium-shadow {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 5px 15px -5px rgba(0, 0, 0, 0.03);
+        }
+        select { 
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); 
+            background-position: right 0.75rem center; 
+            background-repeat: no-repeat; 
+            background-size: 1.5em 1.5em; 
+            padding-right: 2.5rem; 
+            -webkit-appearance: none; 
+            -moz-appearance: none; 
+            appearance: none; 
+        }
     </style>
 </head>
-<body class="bg-[#f4f4f4] text-[#212121] antialiased">
+<body class="text-[#212121] antialiased">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -31,7 +51,7 @@
                         iconElement.innerHTML = "";
                         const svg = window.lucide.createIcons({
                             icons: { [name]: window.lucide[name] },
-                            attrs: { strokeWidth: 2, width: size, height: size, class: className, stroke: color }
+                            attrs: { strokeWidth: 2.5, width: size, height: size, class: className, stroke: color }
                         });
                     }
                 }
@@ -64,11 +84,8 @@
             const [isRateLive, setIsRateLive] = useState(false);
             const [rateDate, setRateDate] = useState("");
             const [loanTerm, setLoanTerm] = useState(30);
-            
-            // Reverting to the high purchase power calibrations
             const [stateTaxRate, setStateTaxRate] = useState(1.25); 
             const [insuranceEstimate, setInsuranceEstimate] = useState(125);
-            
             const [showLeadForm, setShowLeadForm] = useState(false);
             const [formSubmitted, setFormSubmitted] = useState(false);
 
@@ -79,14 +96,13 @@
                 piti: { principalInterest: 0, taxes: 0, insurance: 0, pmi: 0 }
             });
 
-            // Reinstating the standard options
             const PRESET_PERCENTAGES = [0, 3.5, 5, 10, 15, 20];
 
             useEffect(() => {
                 const fetchLiveRate = async () => {
                     const apiKey = ""; 
                     const systemPrompt = "You are a financial data provider. Search for current average 30 year fixed mortgage interest rates in the US today. Respond only with JSON: { \"rate\": 6.45, \"date\": \"Month Day Year\" }. No dashes in date.";
-                    const userQuery = "What is the actual current average 30 year fixed mortgage interest rate today and today date";
+                    const userQuery = "What is the actual current average 30 year fixed mortgage interest rate today and current date";
 
                     try {
                         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
@@ -132,13 +148,12 @@
                 let finalDown = 0;
                 let pmiRate = 0;
 
-                // Restoring the realistic tiered PMI schedule
                 const getPMIRate = (ltvPercent) => {
                     if (ltvPercent <= 80) return 0;
-                    if (ltvPercent > 95) return (0.65 / 100) / 12; // Back to 0.65 for 3.5% down
-                    if (ltvPercent > 90) return (0.50 / 100) / 12; // Back to 0.50 for 5% down
+                    if (ltvPercent > 95) return (0.65 / 100) / 12; 
+                    if (ltvPercent > 90) return (0.50 / 100) / 12; 
                     if (ltvPercent > 85) return (0.35 / 100) / 12; 
-                    return (0.20 / 100) / 12; // Matches your LE for high down scenarios
+                    return (0.20 / 100) / 12; 
                 };
 
                 if (downPaymentMode === 'percentage') {
@@ -172,80 +187,112 @@
 
             return (
                 <div className="pb-20 font-black text-[#212121]">
-                    <nav className="bg-white py-4 px-6 sticky top-0 z-50 shadow-md border-b-4 border-[#b40101]">
-                        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-                            <div className="flex items-center gap-4">
-                                <img src={JOE_INFO.logoUrl} alt="Keller Williams Logo" className="h-10 w-auto object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
-                                <div className="h-8 w-[1px] bg-gray-200 hidden sm:block" />
-                                <img src={JOE_INFO.platinumLogoUrl} alt="Platinum Logo" className="h-10 w-auto object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
-                                <div className="h-8 w-[1px] bg-gray-200 hidden sm:block" />
-                                <div className="hidden sm:block">
-                                    <p className="text-[10px] text-gray-400 uppercase leading-tight">{JOE_INFO.brokerage}</p>
+                    <nav className="bg-white/90 backdrop-blur-md py-4 px-6 sticky top-0 z-50 shadow-sm border-b-2 border-[#b40101]">
+                        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div className="flex items-center gap-5">
+                                <img src={JOE_INFO.logoUrl} alt="KW Logo" className="h-10 w-auto object-contain drop-shadow-sm" onError={(e) => { e.target.style.display = 'none'; }} />
+                                <div className="h-8 w-[1.5px] bg-gray-200 hidden sm:block" />
+                                <img src={JOE_INFO.platinumLogoUrl} alt="Platinum Logo" className="h-10 w-auto object-contain drop-shadow-sm" onError={(e) => { e.target.style.display = 'none'; }} />
+                                <div className="h-8 w-[1.5px] bg-gray-200 hidden sm:block" />
+                                <div className="hidden lg:block text-left">
+                                    <p className="text-[10px] text-gray-400 uppercase leading-none font-black tracking-[0.1em]">{JOE_INFO.brokerage}</p>
                                 </div>
                             </div>
-                            <div className="text-center sm:text-right">
-                                <p className="text-sm uppercase italic leading-none">{JOE_INFO.name}</p>
-                                <p className="text-xs text-[#b40101] mt-1 tracking-tight font-black">{JOE_INFO.phone}</p>
+                            <div className="text-center sm:text-right font-black">
+                                <p className="text-sm uppercase italic leading-none tracking-tight">{JOE_INFO.name}</p>
+                                <p className="text-xs text-[#b40101] mt-1 tracking-widest">{JOE_INFO.phone}</p>
                             </div>
                         </div>
                     </nav>
 
-                    <div className="max-w-6xl mx-auto px-4 pt-8">
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                            <div className="lg:col-span-4 space-y-6">
-                                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                                    <div className="bg-[#b40101] p-4 text-white uppercase text-sm flex items-center gap-2 italic tracking-tighter leading-none">
-                                        <Icon name="Calculator" size={16} /> Budget Parameters
+                    <div className="max-w-7xl mx-auto px-4 pt-10">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                            
+                            {/* Left Column: Input and Personal Brand */}
+                            <div className="lg:col-span-4 space-y-8">
+                                <div className="bg-white rounded-2xl premium-shadow border border-gray-100 overflow-hidden">
+                                    <div className="bg-[#b40101] p-5 text-white flex items-center gap-3 italic">
+                                        <Icon name="Calculator" size={18} /> 
+                                        <h2 className="font-black uppercase text-xs tracking-widest leading-none">Budget Parameters</h2>
                                     </div>
-                                    <div className="p-6 space-y-5">
+                                    <div className="p-8 space-y-6">
                                         <div>
-                                            <label className="block text-xs uppercase mb-2 tracking-wide leading-none">Monthly Payment Goal</label>
-                                            <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
-                                                <input type="number" value={monthlyGoal} onChange={(e) => setMonthlyGoal(Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-md py-4 pl-10 pr-4 focus:border-[#b40101] outline-none text-xl" />
+                                            <label className="block text-[10px] uppercase mb-3 tracking-[0.2em] font-black text-gray-400 leading-none">Monthly Payment Goal</label>
+                                            <div className="relative">
+                                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 font-black text-xl">$</span>
+                                                <input 
+                                                    type="number" 
+                                                    value={monthlyGoal} 
+                                                    onChange={(e) => setMonthlyGoal(Number(e.target.value))} 
+                                                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-5 pl-12 pr-6 focus:border-[#b40101] focus:ring-0 outline-none transition-all font-black text-2xl" 
+                                                />
                                             </div>
                                         </div>
+
                                         <div>
-                                            <div className="flex justify-between items-end mb-2 leading-none">
-                                                <label className="block text-xs uppercase tracking-wide leading-none">Down Payment</label>
-                                                <div className="flex bg-gray-100 p-1 rounded-md overflow-hidden">
-                                                    <button onClick={() => setDownPaymentMode('percentage')} className={`px-6 py-2 text-sm transition-all ${downPaymentMode === 'percentage' ? 'bg-white text-[#b40101] shadow-sm' : 'text-gray-400'}`}>%</button>
-                                                    <button onClick={() => setDownPaymentMode('fixed')} className={`px-6 py-2 text-sm transition-all ${downPaymentMode === 'fixed' ? 'bg-white text-[#b40101] shadow-sm' : 'text-gray-400'}`}>$</button>
+                                            <div className="flex justify-between items-center mb-3">
+                                                <label className="text-[10px] uppercase tracking-[0.2em] font-black text-gray-400 leading-none">Down Payment</label>
+                                                <div className="flex bg-gray-100 p-1 rounded-lg overflow-hidden border border-gray-200">
+                                                    <button onClick={() => setDownPaymentMode('percentage')} className={`px-5 py-2 text-xs font-black transition-all rounded-md ${downPaymentMode === 'percentage' ? 'bg-white text-[#b40101] shadow-sm' : 'text-gray-400'}`}>%</button>
+                                                    <button onClick={() => setDownPaymentMode('fixed')} className={`px-5 py-2 text-xs font-black transition-all rounded-md ${downPaymentMode === 'fixed' ? 'bg-white text-[#b40101] shadow-sm' : 'text-gray-400'}`}>$</button>
                                                 </div>
                                             </div>
                                             {downPaymentMode === 'percentage' ? (
-                                                <div className="space-y-3 leading-none">
+                                                <div className="space-y-4">
                                                     <div className="grid grid-cols-3 gap-2">
                                                         {PRESET_PERCENTAGES.map(pct => (
-                                                            <button key={pct} onClick={() => setDownPaymentPercent(pct)} className={`py-2 text-xs rounded border-2 transition-all ${downPaymentPercent === pct ? 'border-[#b40101] bg-red-50 text-[#b40101]' : 'border-gray-100 text-gray-400'}`}>{pct}%</button>
+                                                            <button 
+                                                                key={pct} 
+                                                                onClick={() => setDownPaymentPercent(pct)} 
+                                                                className={`py-3 text-[11px] font-black rounded-lg border-2 transition-all ${downPaymentPercent === pct ? 'border-[#b40101] bg-red-50 text-[#b40101]' : 'border-gray-100 text-gray-400 hover:border-gray-200'}`}
+                                                            >
+                                                                {pct}%
+                                                            </button>
                                                         ))}
                                                     </div>
-                                                    <div className="bg-gray-50 p-3 rounded flex justify-between items-center"><span className="text-[10px] text-gray-400 uppercase tracking-widest leading-none">Estimated Cash</span><span className="text-sm font-black">{formatCurrency(results.downPaymentAmount)}</span></div>
+                                                    <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 flex justify-between items-center">
+                                                        <span className="text-[9px] text-gray-400 uppercase tracking-widest font-black">Estimated Cash</span>
+                                                        <span className="text-sm font-black text-[#212121]">{formatCurrency(results.downPaymentAmount)}</span>
+                                                    </div>
                                                 </div>
                                             ) : (
-                                                <div className="relative leading-none"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span>
-                                                    <input type="number" value={downPaymentFixed} onChange={(e) => setDownPaymentFixed(Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-md py-3 pl-10 pr-4 focus:border-[#b40101] outline-none font-black" />
+                                                <div className="relative">
+                                                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 font-black text-xl">$</span>
+                                                    <input 
+                                                        type="number" 
+                                                        value={downPaymentFixed} 
+                                                        onChange={(e) => setDownPaymentFixed(Number(e.target.value))} 
+                                                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-4 pl-12 pr-6 focus:border-[#b40101] focus:ring-0 outline-none font-black text-lg" 
+                                                    />
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4">
+
+                                        <div className="grid grid-cols-2 gap-5">
                                             <div className="space-y-1">
-                                                <label className="block text-xs uppercase mb-2 leading-none">Rate %</label>
-                                                <input type="number" step="0.01" value={interestRate} onChange={(e) => setInterestRate(Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-md py-3 px-4 focus:border-[#b40101] outline-none font-black" />
-                                                <div className="pt-2 px-1 min-h-[52px]">
+                                                <label className="block text-[10px] uppercase mb-2 leading-none font-black text-gray-400 tracking-[0.2em]">Rate %</label>
+                                                <input 
+                                                    type="number" 
+                                                    step="0.01" 
+                                                    value={interestRate} 
+                                                    onChange={(e) => setInterestRate(Number(e.target.value))} 
+                                                    className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-4 px-5 focus:border-[#b40101] focus:ring-0 outline-none font-black text-lg" 
+                                                />
+                                                <div className="pt-3 px-1 min-h-[60px]">
                                                     {isRateLive ? (
-                                                        <div className="space-y-1">
-                                                            <div className="flex items-center gap-1.5 text-xs text-[#b40101] uppercase leading-none"><Icon name="Activity" size={12} className="animate-pulse" color="#b40101" /> Live Rates</div>
-                                                            <div className="text-[10px] text-gray-600 uppercase italic leading-tight">Interest rate as of {rateDate}</div>
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center gap-2 text-[10px] text-[#b40101] font-black uppercase tracking-tighter leading-none"><Icon name="Activity" size={12} className="animate-pulse" color="#b40101" /> Live rates</div>
+                                                            <div className="text-[9px] text-gray-500 font-black uppercase italic leading-tight">Rate as of {rateDate}</div>
                                                             {interestRate !== liveRateValue && (
-                                                                <button onClick={() => setInterestRate(liveRateValue)} className="flex items-center gap-1 text-[9px] bg-gray-100 py-1 px-2 rounded uppercase mt-1 hover:bg-gray-200 transition-colors leading-none tracking-widest"><Icon name="RefreshCw" size={8} /> Realign</button>
+                                                                <button onClick={() => setInterestRate(liveRateValue)} className="flex items-center gap-2 text-[9px] bg-gray-100 py-1.5 px-3 rounded-full font-black uppercase mt-1 hover:bg-gray-200 transition-colors tracking-widest border border-gray-200 shadow-sm"><Icon name="RefreshCw" size={8} /> Realign</button>
                                                             )}
                                                         </div>
-                                                    ) : <div className="text-[10px] text-gray-400 uppercase animate-pulse leading-tight tracking-widest">Gathering market data</div>}
+                                                    ) : <div className="text-[9px] text-gray-300 font-black uppercase animate-pulse leading-tight tracking-[0.1em]">Gathering data</div>}
                                                 </div>
                                             </div>
                                             <div>
-                                                <label className="block text-xs uppercase mb-2 leading-none">Location</label>
-                                                <select value={stateTaxRate} onChange={(e) => setStateTaxRate(Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-md py-3 px-4 focus:border-[#b40101] outline-none font-black">
+                                                <label className="block text-[10px] uppercase mb-2 leading-none font-black text-gray-400 tracking-[0.2em]">Location</label>
+                                                <select value={stateTaxRate} onChange={(e) => setStateTaxRate(Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-4 px-5 focus:border-[#b40101] outline-none font-black text-lg">
                                                     <option value={1.25}>RI</option>
                                                     <option value={1.15}>MA</option>
                                                 </select>
@@ -253,97 +300,126 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-[#212121] p-6 rounded-lg text-white leading-relaxed">
-                                    <h3 className="uppercase text-xs mb-3 flex items-center gap-2 tracking-widest leading-none italic"><Icon name="Calendar" size={16} color="#b40101" /> How Escrow Works</h3>
-                                    <p className="text-sm text-gray-300 leading-relaxed font-medium">Banks keep your housing budget simple. They take your yearly insurance and tax bill then divide them by 12 months so they can collect them with your mortgage. This keeps your monthly payment predictable.</p>
+
+                                {/* Expert Consultation Info */}
+                                <div className="p-8 bg-white rounded-2xl border-t-8 border-[#b40101] premium-shadow relative overflow-hidden font-black">
+                                    <div className="flex flex-col items-center text-center">
+                                        <div className="relative mb-6">
+                                            <div className="w-28 h-28 rounded-full border-4 border-white shadow-xl overflow-hidden ring-4 ring-gray-50">
+                                                <img src={JOE_INFO.headshotUrl} alt={JOE_INFO.name} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                                            </div>
+                                            <div className="absolute -bottom-2 right-0 bg-[#b40101] text-white p-2 rounded-full shadow-lg">
+                                                <Icon name="ShieldCheck" size={14} color="white" />
+                                            </div>
+                                        </div>
+                                        <h4 className="text-2xl uppercase italic leading-none mb-3 font-black tracking-tight">{JOE_INFO.name}</h4>
+                                        <div className="flex flex-col items-center gap-2 mb-8">
+                                            <img src={JOE_INFO.platinumLogoUrl} alt="Platinum Logo" className="h-6 w-auto object-contain drop-shadow-sm" onError={(e) => { e.target.style.display = 'none'; }} />
+                                            <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-black">{JOE_INFO.brokerage}</p>
+                                        </div>
+                                        <p className="text-xs text-gray-500 leading-relaxed font-black mb-8 px-2 uppercase tracking-wide">I am here to help you navigate every step of the home buying journey in RI and MA. Let us turn these estimates into a concrete plan for your future home.</p>
+                                        <div className="w-full space-y-3 font-black">
+                                            <a href={`tel:${JOE_INFO.phone.replace(/\D/g,'')}`} className="flex items-center justify-center gap-3 py-4 bg-gray-50 rounded-xl hover:bg-white hover:text-[#b40101] hover:shadow-md transition-all border border-transparent hover:border-red-50 uppercase text-[10px] tracking-widest"><Icon name="Phone" size={14} color="#b40101" /> {JOE_INFO.phone}</a>
+                                            <a href={`mailto:${JOE_INFO.email}`} className="flex items-center justify-center gap-3 py-4 bg-gray-50 rounded-xl hover:bg-white hover:text-[#b40101] hover:shadow-md transition-all border border-transparent hover:border-red-50 uppercase text-[10px] tracking-widest"><Icon name="Mail" size={14} color="#b40101" /> {JOE_INFO.email}</a>
+                                            <a href={`https://${JOE_INFO.website}`} target="_blank" className="flex items-center justify-center gap-3 py-4 bg-gray-50 rounded-xl hover:bg-white hover:text-[#b40101] hover:shadow-md transition-all border border-transparent hover:border-red-50 uppercase text-[10px] tracking-widest italic"><Icon name="Globe" size={14} color="#b40101" /> {JOE_INFO.website}</a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="lg:col-span-8 space-y-6 text-center">
-                                <div className="bg-white rounded-lg shadow-sm border-t-4 border-[#b40101] p-8 md:p-12 relative overflow-hidden">
-                                    <span className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2 block leading-none tracking-widest">Estimated Home Price</span>
-                                    <h2 className="text-6xl md:text-8xl leading-none mb-4 tracking-tighter">{formatCurrency(results.homePrice)}</h2>
-                                    <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10 font-medium leading-relaxed">
-                                        With a <span className="text-[#b40101] tracking-tight">{formatCurrency(monthlyGoal)}</span> monthly target and a <span className="text-[#b40101] tracking-tight">{formatCurrency(results.downPaymentAmount)}</span> down payment we should start looking for homes in this price range.
+                            {/* Right Column: Dynamic Results */}
+                            <div className="lg:col-span-8 space-y-8 text-center font-black">
+                                <div className="bg-white rounded-2xl premium-shadow border border-gray-100 p-10 md:p-16 relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#b40101] via-red-500 to-[#b40101]"></div>
+                                    <span className="text-[11px] uppercase tracking-[0.5em] text-gray-400 mb-4 block font-black leading-none">Estimated Home Price</span>
+                                    <h2 className="text-7xl md:text-9xl font-black text-[#212121] leading-none mb-8 tracking-tighter drop-shadow-sm">{formatCurrency(results.homePrice)}</h2>
+                                    <p className="text-xl text-gray-500 max-w-3xl mx-auto mb-12 font-medium leading-relaxed uppercase tracking-tight">
+                                        With a <span className="text-[#b40101] font-black tracking-tight">{formatCurrency(monthlyGoal)}</span> monthly target and a <span className="text-[#b40101] font-black tracking-tight">{formatCurrency(results.downPaymentAmount)}</span> down payment we should start looking for homes in this price range.
                                     </p>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left leading-none">
-                                        <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
-                                            <div className="flex items-center gap-2 mb-4"><Icon name="Building" color="#b40101" size={20} /><h3 className="text-sm uppercase font-black leading-none">Loan Costs Fixed</h3></div>
-                                            <div className="flex justify-between mb-2 font-black uppercase text-[10px] text-gray-500 tracking-tighter leading-none"><span>Principal and Interest</span><span className="text-[#212121] text-sm">{formatCurrency(results.piti.principalInterest)}</span></div>
-                                            <div className="flex justify-between font-black uppercase text-[10px] text-gray-500 tracking-tighter leading-none"><span>Mortgage Insurance</span><span className="text-[#212121] text-sm">{formatCurrency(results.piti.pmi)}</span></div>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left leading-none font-black mb-12">
+                                        <div className="bg-gray-50/50 p-8 rounded-2xl border border-gray-100 shadow-sm">
+                                            <div className="flex items-center gap-3 mb-6"><Icon name="Building" color="#b40101" size={20} /><h3 className="text-xs uppercase font-black tracking-widest leading-none text-gray-400">Loan Costs</h3></div>
+                                            <div className="flex justify-between items-center mb-4"><span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Principal and Interest</span><span className="text-[#212121] text-lg">{formatCurrency(results.piti.principalInterest)}</span></div>
+                                            <div className="flex justify-between items-center"><span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Mortgage Insurance</span><span className="text-[#212121] text-lg">{formatCurrency(results.piti.pmi)}</span></div>
                                         </div>
-                                        <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
-                                            <div className="flex items-center gap-2 mb-4"><Icon name="ShieldCheck" color="#b40101" size={20} /><h3 className="text-sm uppercase font-black leading-none">Property Costs Flexible</h3></div>
-                                            <div className="flex justify-between mb-2 font-black uppercase text-[10px] text-gray-500 tracking-tighter leading-none"><span>Property Taxes</span><span className="text-[#212121] text-sm">{formatCurrency(results.piti.taxes)}</span></div>
-                                            <div className="flex justify-between font-black uppercase text-[10px] text-gray-500 tracking-tighter leading-none"><span>Home Insurance</span><span className="text-[#212121] text-sm">{formatCurrency(results.piti.insurance)}</span></div>
+                                        <div className="bg-gray-50/50 p-8 rounded-2xl border border-gray-100 shadow-sm">
+                                            <div className="flex items-center gap-3 mb-6"><Icon name="ShieldCheck" color="#b40101" size={20} /><h3 className="text-xs uppercase font-black tracking-widest leading-none text-gray-400">Escrowed Funds</h3></div>
+                                            <div className="flex justify-between items-center mb-4"><span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Property Taxes</span><span className="text-[#212121] text-lg">{formatCurrency(results.piti.taxes)}</span></div>
+                                            <div className="flex justify-between items-center"><span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Home Insurance</span><span className="text-[#212121] text-lg">{formatCurrency(results.piti.insurance)}</span></div>
                                         </div>
+                                    </div>
+
+                                    {/* How Escrow Works Refined Explanation */}
+                                    <div className="text-left bg-[#fcfcfc] p-8 rounded-2xl border border-gray-100 border-l-4 border-l-[#b40101]">
+                                        <h3 className="uppercase text-[10px] mb-4 flex items-center gap-3 tracking-[0.2em] leading-none italic font-black text-[#b40101]"><Icon name="Calendar" size={16} color="#b40101" /> How Escrow Works</h3>
+                                        <p className="text-xs text-gray-500 leading-[1.8] font-black uppercase tracking-wide">
+                                            While your loan costs stay the same every month no matter which house you buy the property costs are the moving target. Each home has its own specific tax assessment and insurance needs. This means two houses listed for the exact same price in different towns could have monthly payments that look nothing alike. Banks take your yearly insurance and tax bill then divide them by 12 months so they can collect them with your mortgage to keep your payment predictable.
+                                        </p>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-black leading-none">
-                                    <div className="bg-[#212121] text-white p-8 rounded-lg shadow-xl text-left relative overflow-hidden group font-black">
-                                        <div className="relative z-10 font-black">
-                                            <h3 className="text-2xl italic uppercase mb-3 leading-none tracking-tighter">Step 1 Get Preapproved</h3>
-                                            <p className="text-gray-300 text-sm mb-6 mt-4 font-medium leading-relaxed font-black">Once we have your verified preapproval we will know exactly how local taxes in different RI and MA towns affect your payment.</p>
-                                            <button onClick={() => setShowLeadForm(true)} className="w-full bg-[#b40101] hover:bg-red-700 text-white font-black py-4 rounded transition-all uppercase tracking-widest text-xs shadow-lg leading-none">Verify Your Buying Power <Icon name="ArrowRight" className="inline ml-1" size={14} /></button>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 font-black leading-none">
+                                    <div className="bg-[#212121] text-white p-10 rounded-2xl shadow-2xl text-left relative overflow-hidden group">
+                                        <div className="relative z-10">
+                                            <h3 className="text-2xl italic uppercase mb-5 leading-none tracking-tight font-black">Step 1 Get Preapproved</h3>
+                                            <p className="text-gray-400 text-xs mb-8 leading-relaxed font-black uppercase tracking-wide">
+                                                This calculator is a great starting point to see what a monthly budget can afford you. To get a precise number a lender will review your unique credit and income to provide a formal preapproval. Click below to start verifying your actual buying power with a local expert.
+                                            </p>
+                                            <button onClick={() => setShowLeadForm(true)} className="w-full bg-[#b40101] hover:bg-red-700 text-white font-black py-5 rounded-xl transition-all uppercase tracking-widest text-[10px] shadow-xl leading-none flex items-center justify-center gap-2">Verify Your Buying Power <Icon name="ArrowRight" size={14} color="white" /></button>
                                         </div>
-                                        <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none leading-none"><Icon name="Home" size={140} /></div>
+                                        <div className="absolute -top-10 -right-10 opacity-[0.03] pointer-events-none group-hover:scale-110 transition-transform duration-700"><Icon name="Home" size={280} /></div>
                                     </div>
-                                    <div className="bg-white border-2 border-[#212121] p-8 rounded-lg flex flex-col justify-between text-left leading-none">
+                                    <div className="bg-white border-2 border-[#212121] p-10 rounded-2xl flex flex-col justify-between text-left shadow-sm">
                                         <div>
-                                            <h3 className="text-2xl italic uppercase mb-3 leading-none tracking-tighter">Step 2 Start The Hunt</h3>
-                                            <p className="text-gray-600 text-sm mb-6 mt-4 font-medium italic leading-relaxed">Search homes on my website up to your estimated budget of {formatCurrency(results.homePrice)} right now.</p>
+                                            <h3 className="text-2xl italic uppercase mb-5 leading-none tracking-tight font-black">Step 2 Start The Hunt</h3>
+                                            <p className="text-gray-500 text-xs mb-8 leading-relaxed font-black uppercase tracking-wide">
+                                                Are you ready to see what <span className="font-black text-[#b40101] text-lg">{formatCurrency(results.homePrice)}</span> can get you in RI or MA? Click below to take a look and see exactly what is on the market for you right now.
+                                            </p>
                                         </div>
-                                        <a href={`${JOE_INFO.kwSearchBase}${results.homePrice}`} target="_blank" className="w-full border-2 border-[#212121] hover:bg-gray-50 text-[#212121] font-black py-4 rounded text-center uppercase tracking-widest text-xs transition-all leading-none font-black">See Homes in Budget <Icon name="Globe" className="inline ml-1" size={14} /></a>
-                                    </div>
-                                </div>
-
-                                <div className="mt-12 flex flex-col md:flex-row items-center gap-8 p-8 bg-white rounded-lg border border-gray-200 text-left relative overflow-hidden leading-none font-black">
-                                    <div className="w-32 h-32 rounded-full border-4 border-[#b40101] overflow-hidden shrink-0 shadow-lg bg-gray-100">
-                                        <img src={JOE_INFO.headshotUrl} alt={JOE_INFO.name} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
-                                    </div>
-                                    <div className="flex-1 z-10">
-                                        <h4 className="text-2xl uppercase italic leading-none">{JOE_INFO.name}</h4>
-                                        <div className="mt-2 mb-4 flex flex-wrap items-center gap-3">
-                                            <img src={JOE_INFO.platinumLogoUrl} alt="Platinum Logo" className="h-8 w-auto object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
-                                            <span className="text-gray-300 font-thin">|</span>
-                                            <p className="text-xs text-gray-500 uppercase tracking-wider leading-none">{JOE_INFO.brokerage}</p>
-                                        </div>
-                                        <p className="text-sm text-gray-600 leading-relaxed font-medium mb-6">I am here to help you navigate every step of the home buying journey in Rhode Island and Massachusetts. Let us turn these estimates into a plan for your future home.</p>
-                                        <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm font-black text-[#212121] leading-none">
-                                            <a href={`tel:${JOE_INFO.phone.replace(/\D/g,'')}`} className="flex items-center gap-2 hover:text-[#b40101] transition-colors leading-none"><Icon name="Phone" size={14} color="#b40101" /> {JOE_INFO.phone}</a>
-                                            <a href={`mailto:${JOE_INFO.email}`} className="flex items-center gap-2 hover:text-[#b40101] transition-colors leading-none"><Icon name="Mail" size={14} color="#b40101" /> {JOE_INFO.email}</a>
-                                            <a href={`https://${JOE_INFO.website}`} target="_blank" className="flex items-center gap-2 hover:text-[#b40101] transition-colors uppercase italic leading-none"><Icon name="Globe" size={14} color="#b40101" /> {JOE_INFO.website}</a>
-                                        </div>
+                                        <a href={`${JOE_INFO.kwSearchBase}${results.homePrice}`} target="_blank" className="w-full border-2 border-[#212121] hover:bg-[#212121] hover:text-white text-[#212121] font-black py-5 rounded-xl text-center uppercase tracking-widest text-[10px] transition-all leading-none flex items-center justify-center gap-2">See Homes in Budget <Icon name="Home" size={14} color="#b40101" /></a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    {/* Lead Bridge Form Overlay */}
                     {showLeadForm && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#212121]/90 backdrop-blur-sm animate-in fade-in duration-200">
-                            <div className="bg-white w-full max-w-lg rounded-lg shadow-2xl overflow-hidden animate-in zoom-in duration-300 font-black text-[#212121]">
-                                <div className="bg-[#b40101] p-6 text-white flex justify-between items-center font-black leading-none">
-                                    <div><h3 className="text-xl italic uppercase leading-none tracking-tighter">Ready to Verify</h3><p className="text-xs text-red-100 mt-1 font-medium italic leading-none">Let us turn this estimate into a formal preapproval.</p></div>
-                                    <button onClick={() => setShowLeadForm(false)} className="text-white uppercase text-[10px] hover:text-red-200 tracking-widest leading-none font-black">Close</button>
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#212121]/90 backdrop-blur-md animate-in fade-in duration-300">
+                            <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-300 font-black text-[#212121]">
+                                <div className="bg-[#b40101] p-8 text-white flex justify-between items-center">
+                                    <div>
+                                        <h3 className="text-2xl italic uppercase leading-none tracking-tight font-black">Ready to Verify</h3>
+                                        <p className="text-[10px] text-red-100 mt-2 font-black uppercase tracking-widest opacity-80">Finalize your buying power</p>
+                                    </div>
+                                    <button onClick={() => setShowLeadForm(false)} className="text-white hover:text-red-200 bg-white/10 p-3 rounded-full transition-colors"><Icon name="X" size={20} /></button>
                                 </div>
-                                <div className="p-8 font-black">
+                                <div className="p-10">
                                     {!formSubmitted ? (
-                                        <form onSubmit={(e) => { e.preventDefault(); setFormSubmitted(true); }} className="space-y-4 font-black leading-none">
-                                            <div><label className="block text-[10px] uppercase mb-1 tracking-widest leading-none">Full Name</label><input required type="text" placeholder="First and Last" className="w-full bg-gray-50 border border-gray-200 rounded py-3 px-4 outline-none focus:border-[#b40101] font-black" /></div>
-                                            <div className="grid grid-cols-2 gap-4 font-black">
-                                                <div><label className="block text-[10px] uppercase mb-1 tracking-widest leading-none">Email</label><input required type="email" placeholder="Email Address" className="w-full bg-gray-50 border border-gray-200 rounded py-3 px-4 outline-none focus:border-[#b40101] font-black" /></div>
-                                                <div><label className="block text-[10px] uppercase mb-1 tracking-widest leading-none">Phone</label><input required type="tel" placeholder="Cell Number" className="w-full bg-gray-50 border border-gray-200 rounded py-3 px-4 outline-none focus:border-[#b40101] font-black" /></div>
+                                        <form onSubmit={(e) => { e.preventDefault(); setFormSubmitted(true); }} className="space-y-6 font-black leading-none">
+                                            <div>
+                                                <label className="block text-[10px] uppercase mb-3 tracking-widest leading-none font-black text-gray-400">Full Name</label>
+                                                <input required type="text" placeholder="First and Last" className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-4 px-5 outline-none focus:border-[#b40101] font-black transition-all" />
                                             </div>
-                                            <button type="submit" className="w-full bg-[#212121] hover:bg-[#b40101] text-white font-black py-4 rounded uppercase text-xs shadow-lg transition-all tracking-widest leading-none">Send to Joe Pine</button>
-                                            <p className="text-[9px] text-gray-400 text-center uppercase tracking-tighter mt-4 leading-relaxed font-black">I will review your numbers and intro you to a local lending expert.</p>
+                                            <div className="grid grid-cols-2 gap-5">
+                                                <div>
+                                                    <label className="block text-[10px] uppercase mb-3 tracking-widest leading-none font-black text-gray-400">Email</label>
+                                                    <input required type="email" placeholder="Email Address" className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-4 px-5 outline-none focus:border-[#b40101] font-black transition-all" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] uppercase mb-3 tracking-widest leading-none font-black text-gray-400">Phone</label>
+                                                    <input required type="tel" placeholder="Cell Number" className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-4 px-5 outline-none focus:border-[#b40101] font-black transition-all" />
+                                                </div>
+                                            </div>
+                                            <button type="submit" className="w-full bg-[#212121] hover:bg-[#b40101] text-white font-black py-5 rounded-xl uppercase text-xs shadow-xl transition-all tracking-[0.2em] leading-none">Send to Joe Pine</button>
+                                            <p className="text-[9px] text-gray-400 text-center uppercase tracking-widest font-black mt-6 leading-relaxed px-4">I will review your numbers and introduce you to a local lending expert who can lock in your exact buying power.</p>
                                         </form>
                                     ) : (
-                                        <div className="text-center py-12 space-y-6 animate-in zoom-in duration-300 font-black leading-none">
-                                            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto shadow-inner leading-none"><Icon name="CheckCircle" size={40} color="#16a34a" /></div>
-                                            <div><h4 className="text-2xl uppercase italic tracking-tighter">Talk soon</h4><p className="text-gray-600 font-black mt-2 leading-relaxed">I have received your information and I will be in touch shortly.</p></div>
-                                            <button onClick={() => setShowLeadForm(false)} className="bg-[#212121] hover:bg-[#b40101] text-white px-10 py-4 rounded uppercase text-xs tracking-widest transition-colors leading-none font-black">Close Window</button>
+                                        <div className="text-center py-16 space-y-8 animate-in zoom-in duration-500 font-black">
+                                            <div className="w-24 h-24 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto shadow-inner ring-8 ring-green-50/50"><Icon name="CheckCircle" size={48} color="#16a34a" /></div>
+                                            <div><h4 className="text-3xl font-black uppercase italic tracking-tight">Talk soon</h4><p className="text-gray-500 font-black mt-3 leading-relaxed uppercase text-[10px] tracking-[0.2em]">I have received your information and I will be in touch shortly.</p></div>
+                                            <button onClick={() => setShowLeadForm(false)} className="bg-[#212121] hover:bg-[#b40101] text-white px-12 py-5 rounded-xl font-black uppercase text-xs tracking-widest transition-all leading-none shadow-lg">Close Window</button>
                                         </div>
                                     )}
                                 </div>
@@ -351,9 +427,10 @@
                         </div>
                     )}
 
-                    <footer className="max-w-6xl mx-auto px-4 mt-12 pb-12 leading-none font-black">
-                        <div className="bg-gray-200 h-[1px] w-full mb-8" />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-[10px] text-gray-400 uppercase tracking-widest leading-relaxed">
+                    {/* Disclaimer Footnotes */}
+                    <footer className="max-w-7xl mx-auto px-4 mt-16 pb-16 leading-none font-black text-[#212121]">
+                        <div className="bg-gray-200 h-[1.5px] w-full mb-10 opacity-50" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-[10px] text-gray-400 uppercase tracking-widest leading-[1.8] font-black">
                             <p>Estimates provided are for informational purposes only and do not constitute a commitment to lend. Actual payments depend on final interest rate credit score and tax assessments. Each office is independently owned and operated.</p>
                             <p className="md:text-right font-black">Joe Pine and Keller Williams Leading Edge are committed to equal housing opportunity. Consult with a licensed mortgage professional for final approval.</p>
                         </div>
