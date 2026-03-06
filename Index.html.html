@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Payment to Home Price Calculator | Joe Pine</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+        body { font-family: 'Montserrat', sans-serif; }
+        .animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
+</head>
+<body class="bg-[#f4f4f4] text-[#212121] antialiased">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Custom Icon Component to handle Lucide icons in CDN environment
+        const Icon = ({ name, size = 16, className = "" }) => {
+            const [iconSvg, setIconSvg] = useState("");
+            useEffect(() => {
+                if (window.lucide) {
+                    const svg = window.lucide.createIcons({
+                        icons: { [name]: window.lucide[name] },
+                        attrs: { strokeWidth: 2, width: size, height: size, class: className }
+                    });
+                }
+            }, [name, size, className]);
+            return <i data-lucide={name} className={className}></i>;
+        };
+
+        const App = () => {
+            const JOE_INFO = {
+                name: "Joe Pine",
+                title: "REALTOR RI & MA",
+                team: "Platinum Real Estate Group",
+                brokerage: "Keller Williams Leading Edge",
+                phone: "401.327.0888",
+                email: "JoePine@KW.com",
+                address: "28 Thurber Blvd, Smithfield, RI 02917",
+                website: "www.JoePine.com",
+                headshotUrl: "Joe (1).JPG",
+                logoUrl: "KellerWilliams_Realty_LeadingEdge_Logo_RGB.png",
+                platinumLogoUrl: "Platinum_Logo.png",
+                kwSearchBase: "https://joepine.kw.com/search/sale?viewport=42.17805594042946%2C-70.57921899499948%2C41.454456956957046%2C-71.89757836999948&price=null%2C"
+            };
+
+            const [monthlyGoal, setMonthlyGoal] = useState(2500);
+            const [downPaymentMode, setDownPaymentMode] = useState('percentage'); 
+            const [downPaymentPercent, setDownPaymentPercent] = useState(5);
+            const [downPaymentFixed, setDownPaymentFixed] = useState(60000);
+            const [interestRate, setInterestRate] = useState(6.25);
+            const [liveRateValue, setLiveRateValue] = useState(null);
+            const [isRateLive, setIsRateLive] = useState(false);
+            const [rateDate, setRateDate] = useState("");
+            const [loanTerm, setLoanTerm] = useState(30);
+            const [stateTaxRate, setStateTaxRate] = useState(1.35); 
+            const [insuranceEstimate, setInsuranceEstimate] = useState(135);
+            const [showLeadForm, setShowLeadForm] = useState(false);
+            const [formSubmitted, setFormSubmitted] = useState(false);
+
+            const [results, setResults] = useState({
+                homePrice: 0,
+                loanAmount: 0,
+                downPaymentAmount: 0,
+                piti: { principalInterest: 0, taxes: 0, insurance: 0, pmi: 0 }
+            });
+
+            const PRESET_PERCENTAGES = [0, 3.5, 5, 10, 15, 20];
+
+            useEffect(() => {
+                const fetchLiveRate = async () => {
+                    const apiKey = ""; 
+                    const systemPrompt = "You are a financial data provider. Search for current average 30 year fixed mortgage interest rates in the US today. Respond only with JSON: { \"rate\": 6.45, \"date\": \"Month Day Year\" }. No dashes in date.";
+                    const userQuery = "Current average 30 year fixed mortgage interest rate today and current date";
+
+                    try {
+                        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{ parts: [{ text: userQuery }] }],
+                                systemInstruction: { parts: [{ text: systemPrompt }] },
+                                tools: [{ "google_search": {} }],
+                                generationConfig: { responseMimeType: "application/json" }
+                            })
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                            if (text) {
+                                const data = JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
+                                if (data.rate) {
+                                    setInterestRate(parseFloat(data.rate));
+                                    setLiveRateValue(parseFloat(data.rate));
+                                    setRateDate(data.date || "");
+                                    setIsRateLive(true);
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        // Silent fail to default rate
+                    }
+                };
+                fetchLiveRate();
+                // Initialize Lucide icons
+                setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 100);
+            }, []);
+
+            useEffect(() => {
+                const r = (interestRate / 100) / 12;
+                const n = loanTerm * 12;
+                const t = (stateTaxRate / 100) / 12;
+                const mc = r > 0 ? (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : 1 / n;
+                
+                let finalPrice = 0;
+                let finalDown = 0;
+                let pmiRate = 0;
+
+                if (downPaymentMode === 'percentage') {
+                    const p = downPaymentPercent / 100;
+                    if (p < 0.20) pmiRate = (0.4 / 100) / 12;
+                    finalPrice = (monthlyGoal - insuranceEstimate) / (((1 - p) * mc) + t + ((1 - p) * pmiRate));
+                    finalDown = finalPrice * p;
+                } else {
+                    const initialPrice = (monthlyGoal - insuranceEstimate + (downPaymentFixed * mc)) / (mc + t);
+                    const ltv = ((initialPrice - downPaymentFixed) / initialPrice) * 100;
+                    if (ltv > 80) pmiRate = (0.4 / 100) / 12;
+                    finalPrice = (monthlyGoal - insuranceEstimate + (downPaymentFixed * mc) + (downPaymentFixed * pmiRate)) / (mc + t + pmiRate);
+                    finalDown = downPaymentFixed;
+                }
+
+                setResults({
+                    homePrice: Math.round(finalPrice),
+                    loanAmount: Math.round(finalPrice - finalDown),
+                    downPaymentAmount: Math.round(finalDown),
+                    piti: {
+                        principalInterest: Math.round((finalPrice - finalDown) * mc),
+                        taxes: Math.round(finalPrice * t),
+                        insurance: insuranceEstimate,
+                        pmi: Math.round((finalPrice - finalDown) * pmiRate)
+                    }
+                });
+                setTimeout(() => { if(window.lucide) window.lucide.createIcons(); }, 10);
+            }, [monthlyGoal, downPaymentMode, downPaymentPercent, downPaymentFixed, interestRate, loanTerm, stateTaxRate, insuranceEstimate]);
+
+            const formatCurrency = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
+
+            return (
+                <div className="pb-20">
+                    <nav className="bg-white py-4 px-6 sticky top-0 z-50 shadow-md border-b-4 border-[#b40101]">
+                        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div className="flex items-center gap-4">
+                                <img src={JOE_INFO.logoUrl} alt="Keller Williams Logo" className="h-10 w-auto" onError={(e) => { e.target.style.display = 'none'; }} />
+                                <div className="h-8 w-[1px] bg-gray-200 hidden sm:block" />
+                                <img src={JOE_INFO.platinumLogoUrl} alt="Platinum Group Logo" className="h-10 w-auto" onError={(e) => { e.target.style.display = 'none'; }} />
+                                <div className="h-8 w-[1px] bg-gray-200 hidden sm:block" />
+                                <div className="hidden sm:block">
+                                    <p className="text-[10px] text-gray-400 uppercase leading-tight font-bold">{JOE_INFO.brokerage}</p>
+                                </div>
+                            </div>
+                            <div className="text-center sm:text-right">
+                                <p className="text-sm font-black text-[#212121] uppercase italic">{JOE_INFO.name}</p>
+                                <p className="text-xs text-[#b40101] font-bold">{JOE_INFO.phone}</p>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <div className="max-w-6xl mx-auto px-4 pt-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                            <div className="lg:col-span-4 space-y-6">
+                                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                                    <div className="bg-[#b40101] p-4 text-white"><h2 className="font-bold flex items-center gap-2 italic uppercase text-sm"><Icon name="Calculator" /> Budget Parameters</h2></div>
+                                    <div className="p-6 space-y-5">
+                                        <div>
+                                            <label className="block text-xs font-black text-gray-500 uppercase mb-2 tracking-wide">Monthly Payment Goal</label>
+                                            <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                                                <input type="number" value={monthlyGoal} onChange={(e) => setMonthlyGoal(Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-md py-4 pl-10 pr-4 focus:border-[#b40101] outline-none font-bold text-xl" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="flex justify-between items-end mb-2">
+                                                <label className="block text-xs font-black text-gray-500 uppercase tracking-wide">Down Payment</label>
+                                                <div className="flex bg-gray-100 p-1 rounded-md font-black overflow-hidden">
+                                                    <button onClick={() => setDownPaymentMode('percentage')} className={`px-6 py-2 text-sm ${downPaymentMode === 'percentage' ? 'bg-white text-[#b40101] shadow-sm' : 'text-gray-400'}`}>%</button>
+                                                    <button onClick={() => setDownPaymentMode('fixed')} className={`px-6 py-2 text-sm ${downPaymentMode === 'fixed' ? 'bg-white text-[#b40101] shadow-sm' : 'text-gray-400'}`}>$</button>
+                                                </div>
+                                            </div>
+                                            {downPaymentMode === 'percentage' ? (
+                                                <div className="space-y-3">
+                                                    <div className="grid grid-cols-3 gap-2">
+                                                        {PRESET_PERCENTAGES.map(pct => (
+                                                            <button key={pct} onClick={() => setDownPaymentPercent(pct)} className={`py-2 text-xs font-bold rounded border-2 ${downPaymentPercent === pct ? 'border-[#b40101] bg-red-50 text-[#b40101]' : 'border-gray-100 text-gray-400'}`}>{pct}%</button>
+                                                        ))}
+                                                    </div>
+                                                    <div className="bg-gray-50 p-3 rounded flex justify-between items-center"><span className="text-[10px] text-gray-400 font-black uppercase">Estimated Cash</span><span className="text-sm font-bold">{formatCurrency(results.downPaymentAmount)}</span></div>
+                                                </div>
+                                            ) : (
+                                                <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                                                    <input type="number" value={downPaymentFixed} onChange={(e) => setDownPaymentFixed(Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-md py-3 pl-10 pr-4 focus:border-[#b40101] outline-none font-semibold" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-1">
+                                                <label className="block text-xs font-black text-gray-500 uppercase mb-2">Rate %</label>
+                                                <input type="number" step="0.01" value={interestRate} onChange={(e) => setInterestRate(Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-md py-3 px-4 focus:border-[#b40101] outline-none font-semibold" />
+                                                <div className="pt-2 px-1 min-h-[44px]">
+                                                    {isRateLive ? (
+                                                        <div className="space-y-1">
+                                                            <div className="flex items-center gap-1.5 text-xs text-[#b40101] font-black uppercase"><Icon name="Activity" className="animate-pulse" /> Live Rates</div>
+                                                            <div className="text-[10px] text-gray-600 font-black uppercase italic leading-tight">Interest rate as of {rateDate}</div>
+                                                            {interestRate !== liveRateValue && (
+                                                                <button onClick={() => setInterestRate(liveRateValue)} className="flex items-center gap-1 text-[9px] bg-gray-100 py-1 px-2 rounded font-black uppercase mt-1"><Icon name="RefreshCw" size={8} /> Realign</button>
+                                                            )}
+                                                        </div>
+                                                    ) : <div className="text-[10px] text-gray-400 font-black uppercase animate-pulse">Gathering market data</div>}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-black text-gray-500 uppercase mb-2">Location</label>
+                                                <select value={stateTaxRate} onChange={(e) => setStateTaxRate(Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-md py-3 px-4 focus:border-[#b40101] outline-none font-semibold appearance-none">
+                                                    <option value={1.35}>RI</option>
+                                                    <option value={1.15}>MA</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="bg-[#212121] p-6 rounded-lg text-white">
+                                    <h3 className="font-black italic uppercase text-xs mb-3 flex items-center gap-2"><Icon name="Calendar" className="text-[#b40101]" /> How Escrow Works</h3>
+                                    <p className="text-sm text-gray-300 leading-relaxed font-medium">Banks keep your housing budget simple. They take your yearly insurance and tax bill then divide them by 12 months so they can collect them with your mortgage. This keeps your monthly payment predictable.</p>
+                                </div>
+                            </div>
+
+                            <div className="lg:col-span-8 space-y-6 text-center">
+                                <div className="bg-white rounded-lg shadow-sm border-t-4 border-[#b40101] p-8 md:p-12 relative overflow-hidden">
+                                    <span className="text-xs font-black uppercase tracking-[0.3em] text-gray-400 mb-2 block">Estimated Home Price</span>
+                                    <h2 className="text-6xl md:text-8xl font-black text-[#212121] leading-none mb-4">{formatCurrency(results.homePrice)}</h2>
+                                    <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10 font-medium">
+                                        With a <span className="text-[#b40101] font-black">{formatCurrency(monthlyGoal)}</span> monthly target and a <span className="text-[#b40101] font-black">{formatCurrency(results.downPaymentAmount)}</span> down payment we should start looking for homes in this price range.
+                                    </p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left font-black">
+                                        <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
+                                            <div className="flex items-center gap-2 mb-4"><Icon name="Building" className="text-[#b40101]" size={20} /><h3 className="text-sm uppercase font-black">Loan Costs Fixed</h3></div>
+                                            <div className="flex justify-between mb-2"><span className="text-xs text-gray-500 font-bold uppercase">Principal and Interest</span><span>{formatCurrency(results.piti.principalInterest)}</span></div>
+                                            <div className="flex justify-between"><span className="text-xs text-gray-500 font-bold uppercase">Mortgage Insurance</span><span>{formatCurrency(results.piti.pmi)}</span></div>
+                                        </div>
+                                        <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
+                                            <div className="flex items-center gap-2 mb-4"><Icon name="ShieldCheck" className="text-[#b40101]" size={20} /><h3 className="text-sm uppercase font-black">Property Costs Flexible</h3></div>
+                                            <div className="flex justify-between mb-2"><span className="text-xs text-gray-500 font-bold uppercase">Property Taxes</span><span>{formatCurrency(results.piti.taxes)}</span></div>
+                                            <div className="flex justify-between"><span className="text-xs text-gray-500 font-bold uppercase">Home Insurance</span><span>{formatCurrency(results.piti.insurance)}</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="bg-[#212121] text-white p-8 rounded-lg shadow-xl text-left relative overflow-hidden group">
+                                        <div className="relative z-10">
+                                            <h3 className="text-2xl font-black italic uppercase mb-3 leading-none">Step 1 Get Preapproved</h3>
+                                            <p className="text-gray-300 text-sm mb-6 mt-4 font-medium">Once we have your verified preapproval we will know exactly how local taxes in different RI and MA towns affect your payment.</p>
+                                            <button onClick={() => setShowLeadForm(true)} className="w-full bg-[#b40101] hover:bg-red-700 text-white font-black py-4 rounded transition-all uppercase tracking-widest text-xs">Verify Your Buying Power <Icon name="ArrowRight" className="inline ml-1" /></button>
+                                        </div>
+                                        <Icon name="Home" size={140} className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none" />
+                                    </div>
+                                    <div className="bg-white border-2 border-[#212121] p-8 rounded-lg flex flex-col justify-between text-left font-black">
+                                        <div>
+                                            <h3 className="text-2xl font-black italic uppercase mb-3 leading-none">Step 2 Start The Hunt</h3>
+                                            <p className="text-gray-600 text-sm mb-6 mt-4 font-medium italic">Search homes on my website up to your estimated budget of {formatCurrency(results.homePrice)} right now.</p>
+                                        </div>
+                                        <a href={`${JOE_INFO.kwSearchBase}${results.homePrice}`} target="_blank" className="w-full border-2 border-[#212121] hover:bg-gray-50 text-[#212121] font-black py-4 rounded text-center uppercase tracking-widest text-xs">See Homes in Budget <Icon name="Globe" className="inline ml-1" /></a>
+                                    </div>
+                                </div>
+
+                                <div className="mt-12 flex flex-col md:flex-row items-center gap-8 p-8 bg-white rounded-lg border border-gray-200 text-left font-black">
+                                    <div className="w-32 h-32 rounded-full border-4 border-[#b40101] overflow-hidden shrink-0 shadow-lg bg-gray-50">
+                                        <img src={JOE_INFO.headshotUrl} alt={JOE_INFO.name} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="text-2xl font-black text-[#212121] uppercase italic leading-none">{JOE_INFO.name}</h4>
+                                        <div className="mt-1 mb-4 flex flex-wrap items-center gap-3">
+                                            <img src={JOE_INFO.platinumLogoUrl} alt="Platinum Logo" className="h-6 w-auto" onError={(e) => { e.target.style.display = 'none'; }} />
+                                            <span className="text-gray-300">|</span>
+                                            <p className="text-xs text-gray-500 font-black uppercase">{JOE_INFO.brokerage}</p>
+                                        </div>
+                                        <p className="text-sm text-gray-600 leading-relaxed font-medium mb-6">I am here to help you navigate every step of the home buying journey in Rhode Island and Massachusetts. Let us turn these estimates into a plan for your future home.</p>
+                                        <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm font-black text-[#212121]">
+                                            <a href={`tel:${JOE_INFO.phone}`} className="flex items-center gap-2 hover:text-[#b40101]"><Icon name="Phone" className="text-[#b40101]" /> {JOE_INFO.phone}</a>
+                                            <a href={`mailto:${JOE_INFO.email}`} className="flex items-center gap-2 hover:text-[#b40101]"><Icon name="Mail" className="text-[#b40101]" /> {JOE_INFO.email}</a>
+                                            <a href={`https://${JOE_INFO.website}`} target="_blank" className="flex items-center gap-2 hover:text-[#b40101]"><Icon name="Globe" className="text-[#b40101]" /> {JOE_INFO.website}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {showLeadForm && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#212121]/90 backdrop-blur-sm">
+                            <div className="bg-white w-full max-w-lg rounded-lg shadow-2xl overflow-hidden">
+                                <div className="bg-[#b40101] p-6 text-white flex justify-between items-center">
+                                    <div><h3 className="text-xl font-black italic uppercase leading-none">Ready to Verify</h3><p className="text-xs text-red-100 mt-1">Let us turn this estimate into a formal preapproval.</p></div>
+                                    <button onClick={() => setShowLeadForm(false)} className="text-white font-black uppercase text-[10px]">Close</button>
+                                </div>
+                                <div className="p-8">
+                                    {!formSubmitted ? (
+                                        <form onSubmit={(e) => { e.preventDefault(); setFormSubmitted(true); }} className="space-y-4">
+                                            <div><label className="block text-[10px] font-black text-gray-400 uppercase mb-1">Full Name</label><input required type="text" className="w-full bg-gray-50 border border-gray-200 rounded py-3 px-4 outline-none focus:border-[#b40101]" /></div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div><label className="block text-[10px] font-black text-gray-400 uppercase mb-1">Email</label><input required type="email" className="w-full bg-gray-50 border border-gray-200 rounded py-3 px-4 outline-none focus:border-[#b40101]" /></div>
+                                                <div><label className="block text-[10px] font-black text-gray-400 uppercase mb-1">Phone</label><input required type="tel" className="w-full bg-gray-50 border border-gray-200 rounded py-3 px-4 outline-none focus:border-[#b40101]" /></div>
+                                            </div>
+                                            <button type="submit" className="w-full bg-[#212121] hover:bg-[#b40101] text-white font-black py-4 rounded uppercase text-xs shadow-lg transition-all">Send to Joe Pine</button>
+                                        </form>
+                                    ) : (
+                                        <div className="text-center py-12 space-y-6">
+                                            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto"><Icon name="CheckCircle" size={40} /></div>
+                                            <h4 className="text-2xl font-black">Talk soon</h4>
+                                            <p className="text-gray-600 font-black">I have received your information and I will be in touch shortly.</p>
+                                            <button onClick={() => setShowLeadForm(false)} className="bg-[#212121] text-white px-10 py-4 rounded font-black uppercase text-xs">Close Window</button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <footer className="max-w-6xl mx-auto px-4 mt-12 pb-12 font-black">
+                        <div className="bg-gray-200 h-[1px] w-full mb-8" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-[10px] text-gray-400 uppercase tracking-wider">
+                            <p>Estimates are for informational purposes only and do not constitute a commitment to lend. Payments depend on interest rate credit score and tax assessments. Each office is independently owned.</p>
+                            <p className="md:text-right font-black">Joe Pine and Keller Williams Leading Edge are committed to equal housing opportunity. Consult a licensed pro for final approval.</p>
+                        </div>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
