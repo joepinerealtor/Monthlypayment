@@ -24,7 +24,7 @@
             background-position: right 0.5rem center; 
             background-repeat: no-repeat; 
             background-size: 1.25em 1.25em; 
-            padding-right: 2rem; 
+            padding-right: 2.5rem; 
             -webkit-appearance: none; 
             -moz-appearance: none; 
             appearance: none; 
@@ -35,15 +35,14 @@
                 margin: 0.5cm;
             }
             .no-print { display: none !important; }
-            body { background-color: white !important; font-size: 9pt !important; }
+            body { background-color: white !important; font-size: 10pt !important; }
             .premium-shadow { box-shadow: none !important; border: 1px solid #eee !important; }
             .max-w-6xl { max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
             .grid-cols-12 { display: flex !important; flex-direction: row !important; gap: 15px !important; align-items: start !important; }
-            .lg\:col-span-4 { width: 32% !important; flex-shrink: 0 !important; }
-            .lg\:col-span-8 { width: 68% !important; flex-shrink: 0 !important; }
-            h2 { font-size: 2.5rem !important; margin-bottom: 0.5rem !important; }
-            p { margin-bottom: 0.5rem !important; }
-            footer { margin-top: 15px !important; border-top: 1px solid #eee !important; padding-top: 10px !important; }
+            .lg\:col-span-4 { width: 34% !important; flex-shrink: 0 !important; }
+            .lg\:col-span-8 { width: 66% !important; flex-shrink: 0 !important; }
+            h2 { font-size: 3rem !important; margin-bottom: 0.5rem !important; }
+            footer { margin-top: 10px !important; border-top: 1px solid #eee !important; }
         }
     </style>
 </head>
@@ -67,7 +66,7 @@
                     }
                 }
             }, [name, size, className, color]);
-            return <span ref={iconRef} className="inline-flex items-center justify-center leading-none"></span>;
+            return <span ref={iconRef} className="inline-flex items-center justify-center leading-none font-black"></span>;
         };
 
         const App = () => {
@@ -174,11 +173,12 @@
                     finalPrice = (monthlyGoal - insuranceEstimate) / (((1 - p) * mc) + t + ((1 - p) * pmiRate));
                     finalDown = finalPrice * p;
                 } else {
-                    const initialPrice = (monthlyGoal - insuranceEstimate + (downPaymentFixed * mc)) / (mc + t);
-                    const ltv = ((initialPrice - downPaymentFixed) / initialPrice) * 100;
+                    const fixedDown = Number(downPaymentFixed) || 0;
+                    const initialPrice = (monthlyGoal - insuranceEstimate + (fixedDown * mc)) / (mc + t);
+                    const ltv = initialPrice > 0 ? ((initialPrice - fixedDown) / initialPrice) * 100 : 0;
                     pmiRate = getPMIRate(ltv);
-                    finalPrice = (monthlyGoal - insuranceEstimate + (downPaymentFixed * mc) + (downPaymentFixed * pmiRate)) / (mc + t + pmiRate);
-                    finalDown = downPaymentFixed;
+                    finalPrice = (monthlyGoal - insuranceEstimate + (fixedDown * mc) + (fixedDown * pmiRate)) / (mc + t + pmiRate);
+                    finalDown = fixedDown;
                 }
 
                 setResults({
@@ -201,8 +201,8 @@
                     html2canvas(captureRef.current, { 
                         backgroundColor: '#f2f2f2', 
                         scale: 2,
-                        logging: false,
-                        useCORS: true
+                        useCORS: true,
+                        logging: false
                     }).then(canvas => {
                         const link = document.createElement('a');
                         link.download = `Joe Pine Home Affordability Summary.png`;
@@ -216,79 +216,91 @@
                 window.print();
             };
 
-            const shareText = `I calculated my home buying power with Joe Pine! Based on a ${formatCurrency(monthlyGoal)} target my range is ${formatCurrency(results.homePrice)}.`;
-            const mailtoLink = `mailto:?subject=My Home Buying Power Estimate&body=${encodeURIComponent(shareText + ' Learn more at ' + JOE_INFO.website)}`;
-            const smsLink = `sms:?body=${encodeURIComponent(shareText + ' ' + JOE_INFO.website)}`;
+            const handleFixedDownChange = (e) => {
+                const val = e.target.value;
+                setDownPaymentFixed(val === "" ? "" : Number(val));
+            };
+
+            const shareText = `I just calculated my home buying power with Joe Pine! Based on a ${formatCurrency(monthlyGoal)} monthly target my estimated range is ${formatCurrency(results.homePrice)}. Learn more at ${JOE_INFO.website}`;
+            const mailtoLink = `mailto:?subject=Home Buying Power Estimate&body=${encodeURIComponent(shareText)}`;
+            const smsLink = `sms:?body=${encodeURIComponent(shareText)}`;
 
             return (
-                <div className="min-h-screen pb-6 font-black text-[#212121]">
-                    <nav className="bg-white/95 backdrop-blur-sm py-2 px-6 sticky top-0 z-50 shadow-sm border-b-2 border-[#b40101] no-print">
+                <div className="min-h-screen pb-4 font-black text-[#212121]">
+                    <nav className="bg-white/95 backdrop-blur-sm py-3 px-6 sticky top-0 z-50 shadow-sm border-b-2 border-[#b40101] no-print">
                         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2 font-black">
                             <div className="flex items-center gap-4">
-                                <img src={JOE_INFO.logoUrl} alt="KW Logo" className="h-7 w-auto object-contain" />
+                                <img src={JOE_INFO.logoUrl} alt="KW Logo" className="h-8 w-auto object-contain font-black" />
                                 <div className="h-6 w-[1.5px] bg-gray-200 hidden sm:block font-black" />
-                                <img src={JOE_INFO.platinumLogoUrl} alt="Platinum Logo" className="h-7 w-auto object-contain" />
+                                <img src={JOE_INFO.platinumLogoUrl} alt="Platinum Logo" className="h-8 w-auto object-contain font-black" />
                             </div>
                             <div className="text-center sm:text-right font-black">
                                 <p className="text-sm uppercase italic leading-none font-black">{JOE_INFO.name}</p>
-                                <p className="text-[9px] text-[#b40101] mt-1 tracking-widest leading-none font-black">{JOE_INFO.phone}</p>
+                                <p className="text-[10px] text-[#b40101] mt-1 tracking-widest leading-none font-black font-black">{JOE_INFO.phone}</p>
                             </div>
                         </div>
                     </nav>
 
-                    <div className="max-w-6xl mx-auto px-4 pt-4 font-black" ref={captureRef}>
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                    <div className="max-w-6xl mx-auto px-4 pt-6 font-black" ref={captureRef}>
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start font-black">
                             
                             {/* Left Column: Branding and Inputs */}
-                            <div className="lg:col-span-4 space-y-5">
-                                <div className="bg-white rounded-xl premium-shadow border border-gray-100 overflow-hidden font-black">
-                                    <div className="bg-[#b40101] p-3 text-white flex items-center gap-2 italic font-black">
+                            <div className="lg:col-span-4 space-y-6 font-black">
+                                <div className="bg-white rounded-xl premium-shadow border border-gray-100 overflow-hidden font-black no-print font-black">
+                                    <div className="bg-[#b40101] p-4 text-white flex items-center gap-2 italic font-black font-black">
                                         <Icon name="Calculator" size={14} /> 
-                                        <h2 className="font-black uppercase text-[10px] tracking-widest leading-none">Parameters</h2>
+                                        <h2 className="font-black uppercase text-xs tracking-widest leading-none font-black">Parameters</h2>
                                     </div>
-                                    <div className="p-4 space-y-4">
+                                    <div className="p-5 space-y-5 font-black">
                                         <div>
-                                            <label className="block text-[10px] uppercase mb-1 tracking-[0.15em] font-black text-gray-400 leading-none">Monthly Goal</label>
+                                            <label className="block text-xs uppercase mb-2 tracking-[0.15em] font-black text-gray-400 font-black">Monthly Goal</label>
                                             <div className="relative font-black">
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 font-black">$</span>
-                                                <input type="number" value={monthlyGoal} onChange={(e) => setMonthlyGoal(Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-lg py-2 pl-9 pr-4 focus:border-[#b40101] outline-none font-black text-lg transition-all" />
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 font-black font-black font-black">$</span>
+                                                <input type="number" value={monthlyGoal} onChange={(e) => setMonthlyGoal(e.target.value === "" ? "" : Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-lg py-3 pl-10 pr-4 focus:border-[#b40101] outline-none font-black text-2xl transition-all font-black" />
                                             </div>
                                         </div>
 
                                         <div>
-                                            <div className="flex justify-between items-center mb-1 leading-none font-black">
-                                                <label className="text-[10px] uppercase tracking-[0.15em] text-gray-400">Down Payment</label>
-                                                <div className="flex bg-gray-100 p-0.5 rounded-md border border-gray-200 no-print">
-                                                    <button onClick={() => setDownPaymentMode('percentage')} className={`px-3 py-0.5 text-[9px] font-black rounded ${downPaymentMode === 'percentage' ? 'bg-white text-[#b40101] shadow-sm' : 'text-gray-400'}`}>%</button>
-                                                    <button onClick={() => setDownPaymentMode('fixed')} className={`px-3 py-0.5 text-[9px] font-black rounded ${downPaymentMode === 'fixed' ? 'bg-white text-[#b40101] shadow-sm' : 'text-gray-400'}`}>$</button>
+                                            <div className="flex justify-between items-center mb-2 leading-none font-black">
+                                                <label className="text-xs uppercase tracking-[0.15em] text-gray-400 font-black">Down Payment</label>
+                                                <div className="flex bg-gray-100 p-0.5 rounded-md border border-gray-200 no-print font-black">
+                                                    <button onClick={() => setDownPaymentMode('percentage')} className={`px-4 py-1 text-xs font-black rounded font-black font-black ${downPaymentMode === 'percentage' ? 'bg-white text-[#b40101] shadow-sm' : 'text-gray-400'}`}>%</button>
+                                                    <button onClick={() => setDownPaymentMode('fixed')} className={`px-4 py-1 text-xs font-black rounded font-black font-black ${downPaymentMode === 'fixed' ? 'bg-white text-[#b40101] shadow-sm' : 'text-gray-400'}`}>$</button>
                                                 </div>
                                             </div>
-                                            <div className="space-y-2">
-                                                <div className="grid grid-cols-6 gap-1 no-print">
-                                                    {PRESET_PERCENTAGES.map(pct => (
-                                                        <button key={pct} onClick={() => setDownPaymentPercent(pct)} className={`py-1.5 text-[10px] font-black rounded-md border transition-all ${downPaymentPercent === pct ? 'border-[#b40101] bg-red-50 text-[#b40101]' : 'border-gray-100 text-gray-400'}`}>{pct}%</button>
-                                                    ))}
+                                            {downPaymentMode === 'percentage' ? (
+                                                <div className="space-y-3 font-black">
+                                                    <div className="grid grid-cols-6 gap-1 no-print font-black">
+                                                        {PRESET_PERCENTAGES.map(pct => (
+                                                            <button key={pct} onClick={() => setDownPaymentPercent(pct)} className={`py-2 text-xs font-black rounded-md border transition-all font-black font-black ${downPaymentPercent === pct ? 'border-[#b40101] bg-red-50 text-[#b40101]' : 'border-gray-100 text-gray-400'}`}>{pct}%</button>
+                                                        ))}
+                                                    </div>
+                                                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 flex justify-between items-center leading-none font-black"><span className="text-[10px] text-gray-400 uppercase tracking-widest font-black">Estimated Cash</span><span className="text-sm font-black font-black">{formatCurrency(results.downPaymentAmount)}</span></div>
                                                 </div>
-                                                <div className="bg-gray-50 p-2 rounded-lg border border-gray-100 flex justify-between items-center font-black leading-none"><span className="text-[8px] text-gray-400 uppercase tracking-widest leading-none font-black">Estimated Cash</span><span className="text-[10px] font-black">{formatCurrency(results.downPaymentAmount)}</span></div>
-                                            </div>
+                                            ) : (
+                                                <div className="relative font-black">
+                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 font-black">$</span>
+                                                    <input type="number" value={downPaymentFixed} onChange={handleFixedDownChange} className="w-full bg-gray-50 border-2 border-gray-100 rounded-lg py-3 pl-10 pr-4 focus:border-[#b40101] outline-none font-black text-xl font-black" />
+                                                </div>
+                                            )}
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-3 font-black">
-                                            <div>
-                                                <label className="block text-[10px] uppercase mb-1 leading-none text-gray-400 tracking-[0.15em]">Rate %</label>
-                                                <input type="number" step="0.01" value={interestRate} onChange={(e) => setInterestRate(Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-lg py-2 px-3 focus:border-[#b40101] outline-none font-black text-sm" />
-                                                <div className="pt-1 px-1">
+                                        <div className="grid grid-cols-2 gap-4 font-black">
+                                            <div className="font-black">
+                                                <label className="block text-xs uppercase mb-2 leading-none text-gray-400 tracking-[0.15em] font-black">Rate %</label>
+                                                <input type="number" step="0.01" value={interestRate} onChange={(e) => setInterestRate(e.target.value === "" ? "" : Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-lg py-3 px-4 focus:border-[#b40101] outline-none font-black text-xl font-black" />
+                                                <div className="pt-2 px-1 font-black">
                                                     {isRateLive ? (
-                                                        <div className="flex flex-col gap-0.5">
-                                                            <div className="flex items-center gap-1.5 text-[8px] text-[#b40101] font-black uppercase font-black"><Icon name="Activity" size={10} className="animate-pulse" color="#b40101" /> Live</div>
-                                                            <div className="text-[7px] text-gray-500 font-black uppercase italic leading-tight">as of {rateDate}</div>
+                                                        <div className="flex flex-col gap-0.5 font-black">
+                                                            <div className="flex items-center gap-1.5 text-[10px] text-[#b40101] font-black uppercase font-black font-black"><Icon name="Activity" size={10} className="animate-pulse" color="#b40101" /> Live</div>
+                                                            <div className="text-[9px] text-gray-500 font-black uppercase italic leading-tight font-black">as of {rateDate}</div>
                                                         </div>
-                                                    ) : <div className="text-[8px] text-gray-300 font-black uppercase animate-pulse">Updating</div>}
+                                                    ) : <div className="text-[10px] text-gray-300 uppercase animate-pulse font-black">Updating</div>}
                                                 </div>
                                             </div>
-                                            <div>
-                                                <label className="block text-[10px] uppercase mb-1 leading-none text-gray-400 tracking-[0.15em]">Location</label>
-                                                <select value={stateTaxRate} onChange={(e) => setStateTaxRate(Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-lg py-2 px-3 focus:border-[#b40101] outline-none font-black text-sm font-black">
+                                            <div className="font-black">
+                                                <label className="block text-xs uppercase mb-2 leading-none text-gray-400 tracking-[0.15em] font-black">Location</label>
+                                                <select value={stateTaxRate} onChange={(e) => setStateTaxRate(Number(e.target.value))} className="w-full bg-gray-50 border-2 border-gray-100 rounded-lg py-3 px-4 focus:border-[#b40101] outline-none font-black text-xl font-black">
                                                     <option value={1.25}>RI</option>
                                                     <option value={1.15}>MA</option>
                                                 </select>
@@ -297,112 +309,123 @@
                                     </div>
                                 </div>
 
-                                {/* Personal Branding Section */}
-                                <div className="p-4 bg-white rounded-xl border-t-4 border-[#b40101] premium-shadow font-black flex flex-col items-center text-center">
-                                    <div className="w-16 h-16 rounded-full border-2 border-[#b40101] overflow-hidden shadow-md mb-2 ring-4 ring-gray-50">
+                                {/* Personal Branding Card */}
+                                <div className="p-6 bg-white rounded-xl border-t-4 border-[#b40101] premium-shadow flex flex-col items-center text-center font-black">
+                                    <div className="w-24 h-24 rounded-full border-2 border-[#b40101] overflow-hidden shadow-md mb-4 ring-4 ring-gray-50 font-black">
                                         <img src={JOE_INFO.headshotUrl} alt={JOE_INFO.name} className="w-full h-full object-cover font-black" />
                                     </div>
-                                    <h4 className="text-sm uppercase italic leading-none mb-1 font-black">{JOE_INFO.name}</h4>
-                                    <div className="mb-3 leading-none">
-                                        <p className="text-[8px] text-gray-400 uppercase leading-none mb-1 tracking-tight">{JOE_INFO.brokerage}</p>
-                                        <p className="text-[8px] text-[#b40101] uppercase tracking-widest leading-none font-black">{JOE_INFO.team}</p>
+                                    <h4 className="text-lg uppercase italic leading-none mb-2 font-black">{JOE_INFO.name}</h4>
+                                    <div className="mb-4 leading-none font-black">
+                                        <p className="text-[10px] text-gray-400 uppercase leading-none mb-1 tracking-tight font-black">{JOE_INFO.brokerage}</p>
+                                        <p className="text-[10px] text-[#b40101] uppercase tracking-widest leading-none font-black">Platinum Real Estate Group</p>
                                     </div>
-                                    <div className="w-full space-y-1.5 text-[8px] font-black">
-                                        <a href={`tel:${JOE_INFO.phone.replace(/\D/g,'')}`} className="flex items-center justify-center gap-2 py-2 bg-gray-50 rounded-lg hover:text-[#b40101] transition-all uppercase tracking-[0.1em] border border-transparent hover:border-red-50 font-black"><Icon name="Phone" size={10} color="#b40101" /> {JOE_INFO.phone}</a>
-                                        <a href={`mailto:${JOE_INFO.email}`} className="flex items-center justify-center gap-2 py-2 bg-gray-50 rounded-lg hover:text-[#b40101] transition-all uppercase tracking-[0.1em] border border-transparent hover:border-red-50 font-black"><Icon name="Mail" size={10} color="#b40101" /> {JOE_INFO.email}</a>
-                                        <a href={`https://${JOE_INFO.website}`} target="_blank" className="flex items-center justify-center gap-2 py-2 bg-gray-50 rounded-lg hover:text-[#b40101] transition-all uppercase tracking-[0.1em] border border-transparent hover:border-red-50 italic"><Icon name="Globe" size={10} color="#b40101" /> {JOE_INFO.website}</a>
+                                    <div className="w-full space-y-2.5 text-xs font-black">
+                                        <a href={`tel:${JOE_INFO.phone.replace(/\D/g,'')}`} className="flex items-center justify-center gap-2 py-3 bg-gray-50 rounded-lg hover:text-[#b40101] transition-all uppercase tracking-[0.1em] border border-transparent hover:border-red-50 font-black"><Icon name="Phone" size={12} color="#b40101" /> {JOE_INFO.phone}</a>
+                                        <a href={`mailto:${JOE_INFO.email}`} className="flex items-center justify-center gap-2 py-3 bg-gray-50 rounded-lg hover:text-[#b40101] transition-all uppercase tracking-[0.1em] border border-transparent hover:border-red-50 font-black"><Icon name="Mail" size={12} color="#b40101" /> {JOE_INFO.email}</a>
+                                        <a href={`https://${JOE_INFO.website}`} target="_blank" className="flex items-center justify-center gap-2 py-3 bg-gray-50 rounded-lg hover:text-[#b40101] transition-all uppercase tracking-[0.1em] border border-transparent hover:border-red-50 italic font-black font-black"><Icon name="Globe" size={12} color="#b40101" /> {JOE_INFO.website}</a>
                                     </div>
                                 </div>
 
-                                {/* Share and Save Section */}
-                                <div className="p-4 bg-white rounded-xl premium-shadow border border-gray-100 font-black no-print">
-                                    <div className="flex items-center gap-2 mb-4 italic">
+                                {/* Independent Sharing Section */}
+                                <div className="p-6 bg-white rounded-xl premium-shadow border border-gray-100 font-black no-print font-black">
+                                    <div className="flex items-center gap-2 mb-4 italic font-black">
                                         <Icon name="Share2" size={14} color="#b40101" />
-                                        <p className="text-[10px] uppercase tracking-widest text-[#212121] leading-none">Share and Save</p>
+                                        <p className="text-[11px] uppercase tracking-widest text-[#212121] leading-none font-black">Share and Save</p>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <button onClick={handlePrint} className="flex items-center justify-center gap-2 py-2.5 bg-[#b40101] text-white rounded-lg hover:bg-red-700 transition-all uppercase text-[8px] tracking-widest font-black shadow-sm font-black leading-none"><Icon name="Printer" size={10} color="white" /> Print</button>
-                                        <button onClick={handleSaveImage} className="flex items-center justify-center gap-2 py-2.5 bg-[#212121] text-white rounded-lg hover:bg-black transition-all uppercase text-[8px] tracking-widest font-black shadow-sm font-black leading-none"><Icon name="Image" size={10} color="white" /> Image</button>
-                                        <a href={mailtoLink} className="flex items-center justify-center gap-2 py-2.5 bg-[#212121] text-white rounded-lg hover:bg-black transition-all uppercase text-[8px] tracking-widest font-black shadow-sm font-black leading-none"><Icon name="Mail" size={10} color="white" /> Email</a>
-                                        <a href={smsLink} className="flex items-center justify-center gap-2 py-2.5 bg-[#212121] text-white rounded-lg hover:bg-black transition-all uppercase text-[8px] tracking-widest font-black shadow-sm font-black leading-none"><Icon name="MessageSquare" size={10} color="white" /> Text</a>
+                                    <div className="grid grid-cols-2 gap-3 font-black">
+                                        <button onClick={handlePrint} className="flex items-center justify-center gap-2 py-3.5 bg-[#b40101] text-white rounded-lg hover:bg-red-700 transition-all uppercase text-[10px] tracking-widest shadow-sm font-black leading-none font-black"><Icon name="Printer" size={12} color="white" /> Print</button>
+                                        <button onClick={handleSaveImage} className="flex items-center justify-center gap-2 py-3.5 bg-[#212121] text-white rounded-lg hover:bg-black transition-all uppercase text-[10px] tracking-widest shadow-sm font-black leading-none font-black"><Icon name="Image" size={12} color="white" /> Image</button>
+                                        <a href={mailtoLink} className="flex items-center justify-center gap-2 py-3.5 bg-[#212121] text-white rounded-lg hover:bg-black transition-all uppercase text-[10px] tracking-widest shadow-sm font-black leading-none font-black"><Icon name="Mail" size={12} color="white" /> Email</a>
+                                        <a href={smsLink} className="flex items-center justify-center gap-2 py-3.5 bg-[#212121] text-white rounded-lg hover:bg-black transition-all uppercase text-[10px] tracking-widest shadow-sm font-black leading-none font-black"><Icon name="MessageSquare" size={12} color="white" /> Text</a>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Main Result Column */}
-                            <div className="lg:col-span-8 space-y-5 text-center font-black">
-                                <div className="bg-white rounded-xl premium-shadow border border-gray-100 p-6 md:p-8 relative overflow-hidden font-black">
-                                    <div className="absolute top-0 left-0 w-full h-1 bg-[#b40101]"></div>
-                                    <span className="text-[10px] uppercase tracking-[0.4em] text-gray-400 mb-1 block font-black leading-none uppercase font-black">Estimated Home Price</span>
-                                    <h2 className="text-5xl md:text-6xl font-black text-[#212121] leading-none mb-4 tracking-tighter drop-shadow-sm font-black">{formatCurrency(results.homePrice)}</h2>
-                                    <p className="text-base text-gray-500 max-w-xl mx-auto mb-6 font-black leading-relaxed uppercase tracking-tight font-black font-black">
-                                        With a <span className="text-[#b40101] font-black tracking-tight font-black font-black">{formatCurrency(monthlyGoal)}</span> monthly target and a <span className="text-[#b40101] font-black tracking-tight font-black font-black font-black">{formatCurrency(results.downPaymentAmount)}</span> down payment we should start looking in this range.
-                                    </p>
+                            {/* Right Column: Calculations */}
+                            <div className="lg:col-span-8 space-y-6 text-center font-black">
+                                <div className="bg-white rounded-xl premium-shadow border border-gray-100 p-8 md:p-10 relative overflow-hidden font-black">
+                                    <div className="absolute top-0 left-0 w-full h-1.5 bg-[#b40101] font-black"></div>
+                                    <span className="text-[11px] uppercase tracking-[0.4em] text-gray-400 mb-2 block font-black leading-none uppercase font-black">Estimated Home Price</span>
+                                    <h2 className="text-6xl md:text-8xl font-black text-[#212121] leading-none mb-6 tracking-tighter drop-shadow-sm font-black font-black">{formatCurrency(results.homePrice)}</h2>
                                     
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left leading-none font-black mb-6">
-                                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 font-black">
-                                            <div className="flex items-center gap-2 mb-3 leading-none font-black font-black font-black"><Icon name="Building" color="#b40101" size={14} /><h3 className="text-[11px] uppercase font-black leading-none tracking-[0.1em] text-gray-500 font-black">Loan Costs</h3></div>
-                                            <div className="flex justify-between items-center mb-2 leading-none font-black font-black font-black font-black"><span className="text-[8px] text-gray-500 uppercase tracking-widest leading-none font-black font-black">P & I</span><span className="text-[11px] leading-none font-black font-black font-black font-black">{formatCurrency(results.piti.principalInterest)}</span></div>
-                                            <div className="flex justify-between items-center leading-none font-black font-black font-black font-black font-black"><span className="text-[8px] text-gray-500 uppercase tracking-widest leading-none font-black font-black font-black">PMI</span><span className="text-[11px] leading-none font-black font-black font-black font-black font-black">{formatCurrency(results.piti.pmi)}</span></div>
+                                    {/* Summary Sentence Enhancement */}
+                                    <div className="bg-red-50/30 p-6 rounded-2xl border border-red-50 mb-10 font-black">
+                                        <p className="text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto font-black leading-relaxed uppercase tracking-tight font-black">
+                                            With a <span className="text-[#b40101] underline decoration-2 underline-offset-4 font-black">{formatCurrency(monthlyGoal)}</span> monthly target and a <span className="text-[#b40101] underline decoration-2 underline-offset-4 font-black">{formatCurrency(results.downPaymentAmount)}</span> down payment we should start looking in this range.
+                                        </p>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-left leading-none font-black mb-8 font-black">
+                                        <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 font-black font-black">
+                                            <div className="flex items-center gap-2 mb-4 leading-none font-black"><Icon name="Building" color="#b40101" size={18} /><h3 className="text-sm uppercase tracking-[0.1em] text-gray-500 font-black">Loan Costs</h3></div>
+                                            <div className="flex justify-between items-center mb-3 leading-none font-black"><span className="text-[11px] text-gray-500 uppercase tracking-widest leading-none font-black">P & I</span><span className="text-lg font-black font-black">{formatCurrency(results.piti.principalInterest)}</span></div>
+                                            <div className="flex justify-between items-center leading-none font-black font-black"><span className="text-[11px] text-gray-500 uppercase tracking-widest leading-none font-black font-black">PMI</span><span className="text-lg font-black font-black font-black">{formatCurrency(results.piti.pmi)}</span></div>
                                         </div>
-                                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 font-black font-black">
-                                            <div className="flex items-center gap-2 mb-3 leading-none font-black font-black font-black font-black font-black"><Icon name="ShieldCheck" color="#b40101" size={14} /><h3 className="text-[11px] uppercase font-black leading-none tracking-[0.1em] text-gray-500 font-black font-black font-black font-black">Escrowed Funds</h3></div>
-                                            <div className="flex justify-between items-center mb-2 leading-none font-black font-black font-black font-black font-black font-black"><span className="text-[8px] text-gray-500 uppercase tracking-widest leading-none font-black font-black font-black">Taxes</span><span className="text-[11px] leading-none font-black font-black font-black font-black font-black font-black font-black">{formatCurrency(results.piti.taxes)}</span></div>
-                                            <div className="flex justify-between items-center leading-none font-black font-black font-black font-black font-black font-black font-black"><span className="text-[8px] text-gray-500 uppercase tracking-widest leading-none font-black font-black font-black font-black">Insurance</span><span className="text-[11px] leading-none font-black font-black font-black font-black font-black font-black font-black font-black">{formatCurrency(results.piti.insurance)}</span></div>
+                                        <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 font-black font-black">
+                                            <div className="flex items-center gap-2 mb-4 leading-none font-black"><Icon name="ShieldCheck" color="#b40101" size={18} /><h3 className="text-sm uppercase tracking-[0.1em] text-gray-500 font-black font-black">Escrowed Funds</h3></div>
+                                            <div className="flex justify-between items-center mb-3 leading-none font-black"><span className="text-[11px] text-gray-500 uppercase tracking-widest leading-none font-black font-black">Taxes</span><span className="text-lg font-black font-black font-black">{formatCurrency(results.piti.taxes)}</span></div>
+                                            <div className="flex justify-between items-center leading-none font-black font-black"><span className="text-[11px] text-gray-500 uppercase tracking-widest leading-none font-black font-black font-black">Insurance</span><span className="text-lg font-black font-black font-black font-black">{formatCurrency(results.piti.insurance)}</span></div>
                                         </div>
                                     </div>
 
-                                    <div className="text-left bg-[#fcfcfc] p-4 rounded-xl border border-gray-100 border-l-4 border-l-[#b40101] font-black font-black font-black font-black">
-                                        <h3 className="uppercase text-[10px] mb-2 flex items-center gap-2 tracking-[0.2em] leading-none italic font-black text-[#b40101] font-black font-black font-black font-black font-black"><Icon name="Calendar" size={12} color="#b40101" /> How Escrow Works</h3>
-                                        <p className="text-[10px] text-gray-500 leading-relaxed font-black uppercase tracking-wide font-black font-black font-black font-black">
+                                    <div className="text-left bg-[#fcfcfc] p-6 rounded-xl border border-gray-100 border-l-4 border-l-[#b40101] font-black font-black">
+                                        <h3 className="uppercase text-[11px] mb-3 flex items-center gap-2 tracking-[0.2em] leading-none italic font-black text-[#b40101] font-black"><Icon name="Calendar" size={14} color="#b40101" /> How Escrow Works</h3>
+                                        <p className="text-[11px] text-gray-500 leading-relaxed font-black uppercase tracking-wide font-black">
                                             While your loan costs stay the same every month the property costs are the moving target. Each home has its own specific tax assessment and insurance needs. This means two houses listed for the exact same price in different towns could have monthly payments that look nothing alike. Banks take your yearly insurance and tax bill then divide them by 12 months to collect them with your mortgage for a predictable payment.
                                         </p>
                                     </div>
+                                    
+                                    <div className="hidden print-only text-left border-t border-gray-200 mt-10 pt-6 font-black">
+                                        <h4 className="text-base uppercase italic leading-none mb-2 font-black">{JOE_INFO.name}</h4>
+                                        <p className="text-[11px] text-gray-500 uppercase tracking-widest mb-1 font-black">{JOE_INFO.brokerage}</p>
+                                        <p className="text-[11px] text-[#b40101] uppercase tracking-widest font-black">Platinum Real Estate Group</p>
+                                        <p className="text-[11px] text-gray-400 mt-2 font-black">{JOE_INFO.phone} | {JOE_INFO.email} | {JOE_INFO.website}</p>
+                                    </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-black leading-none no-print">
-                                    <div className="bg-[#212121] text-white p-6 rounded-xl shadow-lg text-left relative overflow-hidden group font-black font-black font-black font-black font-black font-black">
-                                        <h3 className="text-base italic uppercase mb-2 leading-none tracking-tight font-black font-black font-black font-black font-black font-black font-black">Step 1 Get Preapproved</h3>
-                                        <p className="text-gray-400 text-[10px] mb-4 leading-relaxed font-black uppercase tracking-wide font-black font-black font-black font-black font-black font-black font-black font-black">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 font-black leading-none no-print font-black">
+                                    <div className="bg-[#212121] text-white p-8 rounded-xl shadow-lg text-left relative overflow-hidden group font-black font-black">
+                                        <h3 className="text-xl italic uppercase mb-3 leading-none tracking-tight font-black">Step 1 Get Preapproved</h3>
+                                        <p className="text-gray-400 text-[11px] mb-6 leading-relaxed font-black uppercase tracking-wide font-black">
                                             This calculator is a rough starting point. To get a precise number a lender will review your income and credit for a formal preapproval. Click below to start verifying your power with a local expert.
                                         </p>
-                                        <button onClick={() => setShowLeadForm(true)} className="w-full bg-[#b40101] hover:bg-red-700 text-white font-black py-3 rounded-lg transition-all uppercase tracking-widest text-[8px] shadow-lg flex items-center justify-center gap-2 leading-none font-black font-black font-black font-black font-black font-black font-black font-black font-black">Verify Your Buying Power <Icon name="ArrowRight" size={10} color="white" /></button>
+                                        <button onClick={() => setShowLeadForm(true)} className="w-full bg-[#b40101] hover:bg-red-700 text-white font-black py-4 rounded-lg transition-all uppercase tracking-widest text-[10px] shadow-lg flex items-center justify-center gap-2 leading-none font-black"><Icon name="ArrowRight" size={12} color="white" /> Verify Your Buying Power</button>
                                     </div>
-                                    <div className="bg-white border-2 border-[#212121] p-6 rounded-xl flex flex-col justify-between text-left shadow-sm font-black font-black font-black font-black font-black font-black font-black font-black">
+                                    <div className="bg-white border-2 border-[#212121] p-8 rounded-xl flex flex-col justify-between text-left shadow-sm font-black font-black font-black">
                                         <div>
-                                            <h3 className="text-base italic uppercase mb-2 leading-none tracking-tight font-black font-black font-black font-black font-black font-black font-black font-black font-black">Step 2 Start The Hunt</h3>
-                                            <p className="text-gray-600 text-[10px] mb-4 leading-relaxed font-black uppercase tracking-wide font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
-                                                Are you ready to see what <span className="font-black text-[#b40101] text-base font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">{formatCurrency(results.homePrice)}</span> can get you in RI or MA? Click below to take a look and see exactly what is on the market for you right now.
+                                            <h3 className="text-xl italic uppercase mb-3 leading-none tracking-tight font-black font-black">Step 2 Start The Hunt</h3>
+                                            <p className="text-gray-600 text-[11px] mb-6 leading-relaxed font-black uppercase tracking-wide font-black">
+                                                Are you ready to see what <span className="font-black text-[#b40101] text-lg font-black font-black font-black">{formatCurrency(results.homePrice)}</span> can get you in RI or MA? Click below to take a look and see exactly what is on the market for you right now.
                                             </p>
                                         </div>
-                                        <a href={`${JOE_INFO.kwSearchBase}${results.homePrice}`} target="_blank" className="w-full border-2 border-[#212121] hover:bg-[#212121] hover:text-white text-[#212121] font-black py-3 rounded-lg text-center uppercase tracking-widest text-[8px] transition-all flex items-center justify-center gap-2 leading-none font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">See Homes in Budget <Icon name="Home" size={10} color="#b40101" /></a>
+                                        <a href={`${JOE_INFO.kwSearchBase}${results.homePrice}`} target="_blank" className="w-full border-2 border-[#212121] hover:bg-[#212121] hover:text-white text-[#212121] font-black py-4 rounded-lg text-center uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 leading-none font-black font-black"><Icon name="Home" size={12} color="#b40101" /> See Homes in Budget</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Lead bridge modal */}
+                    {/* Lead modal */}
                     {showLeadForm && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#212121]/80 backdrop-blur-sm animate-in fade-in duration-300 font-black font-black font-black font-black font-black font-black font-black">
-                            <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden font-black text-[#212121] font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
-                                <div className="bg-[#b40101] p-5 text-white flex justify-between items-center font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
-                                    <h3 className="text-base italic uppercase leading-none font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Verify Power</h3>
-                                    <button onClick={() => setShowLeadForm(false)} className="text-white hover:text-red-200 transition-colors leading-none font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black"><Icon name="X" size={16} /></button>
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#212121]/80 backdrop-blur-sm animate-in fade-in duration-300 font-black">
+                            <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden font-black text-[#212121] font-black font-black font-black">
+                                <div className="bg-[#b40101] p-6 text-white flex justify-between items-center font-black font-black font-black font-black">
+                                    <h3 className="text-lg italic uppercase leading-none font-black font-black">Verify Power</h3>
+                                    <button onClick={() => setShowLeadForm(false)} className="text-white hover:text-red-200 transition-colors leading-none font-black font-black"><Icon name="X" size={16} /></button>
                                 </div>
-                                <div className="p-6 font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
+                                <div className="p-8 font-black font-black">
                                     {!formSubmitted ? (
-                                        <form onSubmit={(e) => { e.preventDefault(); setFormSubmitted(true); }} className="space-y-4 font-black leading-none font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
-                                            <div><label className="block text-[9px] uppercase mb-1.5 tracking-widest text-gray-400 font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Full Name</label><input required type="text" className="w-full bg-gray-50 border-2 border-gray-100 rounded-lg py-2 px-3 outline-none focus:border-[#b40101] font-black text-sm font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black" /></div>
-                                            <div><label className="block text-[9px] uppercase mb-1.5 tracking-widest text-gray-400 font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Email Address</label><input required type="email" className="w-full bg-gray-50 border-2 border-gray-100 rounded-lg py-2 px-3 outline-none focus:border-[#b40101] font-black text-sm font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black" /></div>
-                                            <div><label className="block text-[9px] uppercase mb-1.5 tracking-widest text-gray-400 font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Cell</label><input required type="tel" className="w-full bg-gray-50 border-2 border-gray-100 rounded-lg py-2 px-3 outline-none focus:border-[#b40101] font-black text-sm font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black" /></div>
-                                            <button type="submit" className="w-full bg-[#212121] hover:bg-[#b40101] text-white font-black py-3 rounded-lg uppercase text-[10px] tracking-widest transition-all mt-2 font-black leading-none font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Send to Joe Pine</button>
+                                        <form onSubmit={(e) => { e.preventDefault(); setFormSubmitted(true); }} className="space-y-4 font-black leading-none font-black">
+                                            <div><label className="block text-[10px] uppercase mb-1.5 tracking-widest text-gray-400 font-black">Full Name</label><input required type="text" className="w-full bg-gray-50 border-2 border-gray-100 rounded-lg py-3 px-4 outline-none focus:border-[#b40101] font-black text-sm font-black font-black" /></div>
+                                            <div><label className="block text-[10px] uppercase mb-1.5 tracking-widest text-gray-400 font-black font-black">Email Address</label><input required type="email" className="w-full bg-gray-50 border-2 border-gray-100 rounded-lg py-3 px-4 outline-none focus:border-[#b40101] font-black text-sm font-black font-black" /></div>
+                                            <div><label className="block text-[10px] uppercase mb-1.5 tracking-widest text-gray-400 font-black font-black">Cell</label><input required type="tel" className="w-full bg-gray-50 border-2 border-gray-100 rounded-lg py-3 px-4 outline-none focus:border-[#b40101] font-black text-sm font-black font-black font-black" /></div>
+                                            <button type="submit" className="w-full bg-[#212121] hover:bg-[#b40101] text-white font-black py-4 rounded-lg uppercase text-[10px] tracking-widest transition-all mt-4 font-black leading-none font-black">Send to Joe Pine</button>
                                         </form>
                                     ) : (
-                                        <div className="text-center py-8 space-y-5 font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
-                                            <div className="w-12 h-12 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto shadow-inner leading-none font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black"><Icon name="CheckCircle" size={24} color="#16a34a" /></div>
-                                            <div><h4 className="text-lg uppercase italic leading-none font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Talk soon</h4><p className="text-gray-500 font-black mt-2 text-[10px] uppercase tracking-widest leading-relaxed font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Info received I will be in touch shortly.</p></div>
-                                            <button onClick={() => setShowLeadForm(false)} className="bg-[#212121] text-white px-8 py-2.5 rounded-lg font-black uppercase text-[10px] tracking-widest transition-all font-black leading-none font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Close</button>
+                                        <div className="text-center py-10 space-y-6 font-black font-black font-black">
+                                            <div className="w-14 h-14 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto shadow-inner leading-none font-black font-black font-black"><Icon name="CheckCircle" size={28} color="#16a34a" /></div>
+                                            <div><h4 className="text-xl uppercase italic leading-none font-black font-black font-black font-black">Talk soon</h4><p className="text-gray-500 font-black mt-2 text-[10px] uppercase tracking-widest leading-relaxed font-black font-black font-black">Info received I will be in touch shortly.</p></div>
+                                            <button onClick={() => setShowLeadForm(false)} className="bg-[#212121] text-white px-10 py-3 rounded-lg font-black uppercase text-[10px] tracking-widest font-black leading-none font-black">Close</button>
                                         </div>
                                     )}
                                 </div>
@@ -410,13 +433,13 @@
                         </div>
                     )}
 
-                    <footer className="max-w-6xl mx-auto px-4 mt-8 pb-6 leading-none font-black text-[#212121] font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
-                        <div className="bg-gray-200 h-[1px] w-full mb-6 opacity-50 font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black" />
-                        <div className="text-center font-black space-y-4 font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
-                            <p className="text-[10px] text-gray-500 leading-relaxed font-black uppercase tracking-wide max-w-4xl mx-auto font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">
-                                These numbers are a helpful theoretical way to see how much home you could potentially afford based on your desired monthly payment. Estimates provided are for informational purposes only and do not constitute a commitment to lend. Final monthly payments are decided by your specific loan program and the town tax assessment once you pick a home. Joe Pine, Keller Williams Leading Edge and Platinum Real Estate Group support equal housing opportunity and each office is independently owned and operated. Only a licensed mortgage professional can issue a formal preapproval to lend. Always consult with a licensed loan professional for specific mortgage advice and financial information.
+                    <footer className="max-w-6xl mx-auto px-4 mt-12 pb-8 font-black text-[#212121] font-black font-black font-black font-black font-black font-black">
+                        <div className="bg-gray-200 h-[1px] w-full mb-8 opacity-50 font-black font-black font-black font-black font-black" />
+                        <div className="text-center font-black space-y-4 font-black font-black font-black font-black">
+                            <p className="text-[11px] text-gray-500 leading-relaxed uppercase tracking-wide max-w-4xl mx-auto font-black font-black font-black font-black">
+                                Estimates provided are for informational purposes only and do not constitute a commitment to lend. These numbers are a helpful theoretical way to see how much home you could potentially afford based on your desired monthly payment. Final monthly payments are decided by your specific loan program and the town tax assessment once you pick a home. Joe Pine, Keller Williams Leading Edge and Platinum Real Estate Group support equal housing opportunity and each office is independently owned and operated. Only a licensed mortgage professional can issue a formal preapproval to lend. Always consult with a licensed loan professional for specific mortgage advice and financial information.
                             </p>
-                            <p className="text-[8px] text-gray-300 font-black uppercase tracking-widest font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black font-black">Rhode Island and Massachusetts Real Estate</p>
+                            <p className="text-[9px] text-gray-300 uppercase tracking-widest font-black font-black font-black font-black font-black font-black">Rhode Island and Massachusetts Real Estate</p>
                         </div>
                     </footer>
                 </div>
