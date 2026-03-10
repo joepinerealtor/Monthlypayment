@@ -65,6 +65,286 @@
         .action-surface {
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(249, 250, 251, 0.98) 100%);
         }
+        .export-sheet-print-host {
+            position: absolute;
+            left: -10000px;
+            top: 0;
+            width: 920px;
+            pointer-events: none;
+        }
+        .export-sheet {
+            width: 920px;
+            background: #ffffff;
+            border: 1px solid var(--kw-line);
+            border-radius: 28px;
+            padding: 28px;
+            color: var(--kw-ink);
+            box-shadow: 0 24px 50px -28px rgba(15, 23, 42, 0.22);
+        }
+        .export-sheet * {
+            box-sizing: border-box;
+        }
+        .export-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 18px;
+        }
+        .export-contact {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 0;
+        }
+        .export-headshot {
+            width: 72px;
+            height: 72px;
+            border-radius: 999px;
+            overflow: hidden;
+            flex: 0 0 auto;
+            border: 3px solid var(--kw-red);
+        }
+        .export-headshot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .export-identity h1 {
+            margin: 0 0 6px;
+            font-size: 30px;
+            line-height: 0.95;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.03em;
+        }
+        .export-identity p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.2;
+            font-weight: 800;
+            color: var(--kw-slate);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+        .export-contact-info {
+            text-align: right;
+            font-size: 14px;
+            line-height: 1.45;
+            font-weight: 800;
+            color: var(--kw-slate);
+        }
+        .export-contact-info span,
+        .export-contact-info a {
+            display: block;
+            color: inherit;
+            text-decoration: none;
+        }
+        .export-contact-info .export-website {
+            color: var(--kw-red);
+        }
+        .export-logos {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--kw-line);
+        }
+        .export-logos-group {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            min-width: 0;
+        }
+        .export-logo-kw {
+            height: 36px;
+            width: auto;
+            object-fit: contain;
+        }
+        .export-logo-platinum {
+            height: 44px;
+            width: auto;
+            object-fit: contain;
+        }
+        .export-office {
+            text-align: right;
+            font-size: 12px;
+            line-height: 1.45;
+            color: var(--kw-slate);
+            font-weight: 800;
+        }
+        .export-office-label {
+            display: block;
+            margin-bottom: 2px;
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--kw-muted);
+        }
+        .export-banner {
+            margin-bottom: 16px;
+            padding: 14px 18px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--kw-red) 0%, #cf181f 55%, var(--kw-red-deep) 100%);
+            color: #ffffff;
+        }
+        .export-banner-kicker {
+            margin: 0 0 6px;
+            font-size: 10px;
+            line-height: 1;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.84);
+        }
+        .export-banner h2 {
+            margin: 0;
+            font-size: 24px;
+            line-height: 1.1;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+        }
+        .export-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .export-stat {
+            border: 1px solid var(--kw-line);
+            border-radius: 18px;
+            background: #fbfbfb;
+            padding: 14px 12px;
+            text-align: center;
+        }
+        .export-stat-label {
+            margin: 0 0 8px;
+            font-size: 10px;
+            line-height: 1.2;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--kw-muted);
+        }
+        .export-stat-value {
+            margin: 0;
+            font-size: 26px;
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            color: var(--kw-ink);
+        }
+        .export-price-block {
+            margin-bottom: 18px;
+            text-align: center;
+            border: 1px solid var(--kw-line);
+            border-radius: 22px;
+            padding: 18px 22px;
+            background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+        }
+        .export-price-kicker {
+            margin: 0 0 8px;
+            font-size: 11px;
+            line-height: 1;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--kw-muted);
+        }
+        .export-price-value {
+            margin: 0 0 8px;
+            font-size: 68px;
+            line-height: 0.95;
+            font-weight: 900;
+            letter-spacing: -0.06em;
+            color: var(--kw-green);
+        }
+        .export-price-copy {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.45;
+            color: var(--kw-slate);
+            font-weight: 800;
+        }
+        .export-breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .export-panel {
+            border: 1px solid var(--kw-line);
+            border-radius: 20px;
+            background: #fbfbfb;
+            padding: 16px;
+        }
+        .export-panel-title {
+            margin: 0 0 12px;
+            font-size: 11px;
+            line-height: 1;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--kw-muted);
+        }
+        .export-panel-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .export-panel-row:last-child {
+            margin-bottom: 0;
+        }
+        .export-panel-label {
+            font-size: 12px;
+            line-height: 1.35;
+            color: var(--kw-slate);
+            font-weight: 800;
+            letter-spacing: 0.02em;
+        }
+        .export-panel-value {
+            font-size: 20px;
+            line-height: 1;
+            color: var(--kw-ink);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            white-space: nowrap;
+        }
+        .export-meta {
+            margin-bottom: 14px;
+            padding: 16px 18px;
+            border: 1px solid var(--kw-line);
+            border-radius: 20px;
+            background: #ffffff;
+        }
+        .export-meta p {
+            margin: 0 0 8px;
+            font-size: 11px;
+            line-height: 1.5;
+            color: var(--kw-slate);
+            font-weight: 800;
+        }
+        .export-meta p:last-child {
+            margin-bottom: 0;
+        }
+        .export-link {
+            color: var(--kw-red);
+            word-break: break-word;
+        }
+        .export-disclaimer {
+            border: 1px solid var(--kw-line);
+            border-radius: 20px;
+            background: #f9fafb;
+            padding: 14px 16px;
+        }
+        .export-disclaimer p {
+            margin: 0;
+            font-size: 10px;
+            line-height: 1.55;
+            color: var(--kw-muted);
+            font-weight: 700;
+            text-align: center;
+        }
         .rolling-price {
             --digit-height: 1.08em;
             display: inline-flex;
@@ -140,20 +420,43 @@
         @media print {
             @page {
                 size: letter;
-                margin: 0.5cm;
+                margin: 0.35in;
             }
             .no-print { display: none !important; }
             .print-only { display: block !important; }
             .avoid-print-break { break-inside: avoid; page-break-inside: avoid; }
             body { background: white !important; font-size: 10pt !important; }
-            .premium-shadow { box-shadow: none !important; border: 1px solid #eee !important; }
-            .max-w-6xl { max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
-            .grid-cols-12 { display: block !important; }
-            .lg\:col-span-4 { display: none !important; }
-            .lg\:col-span-8 { width: 100% !important; display: block !important; }
-            h2 { font-size: 3rem !important; margin-bottom: 0.5rem !important; }
             .rolling-price .digit-track { transition: none !important; }
-            footer { margin-top: 10px !important; border-top: 1px solid #eee !important; }
+            body.printing-export .app-shell {
+                display: none !important;
+            }
+            body.printing-export .export-sheet-print-host {
+                position: static !important;
+                left: auto !important;
+                top: auto !important;
+                width: auto !important;
+                pointer-events: auto !important;
+                display: block !important;
+                margin: 0 !important;
+            }
+            body.printing-export .export-sheet {
+                width: 100% !important;
+                border: none !important;
+                border-radius: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+            }
+            body.printing-export .export-price-value {
+                font-size: 60px !important;
+            }
+            body.printing-export .export-panel,
+            body.printing-export .export-meta,
+            body.printing-export .export-disclaimer,
+            body.printing-export .export-price-block,
+            body.printing-export .export-stat {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
         }
         @media (prefers-reduced-motion: reduce) {
             .rolling-price .digit-track { transition: none !important; }
@@ -242,10 +545,12 @@
             const MND_RATE_PROXY_URL = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(MND_RATE_SOURCE_URL)}`;
             const HOME_INSURANCE_RATE = 0.005;
             const ESTIMATED_CLOSING_COST_RATE = 0.03;
+            const DEFAULT_RI_MEDIAN_HOME_PRICE = 499000;
+            const DEFAULT_RI_MEDIAN_PAYMENT_FALLBACK = 3953;
 
             const [user, setUser] = useState(null);
             const [db, setDb] = useState(null);
-            const [monthlyGoal, setMonthlyGoal] = useState(2500);
+            const [monthlyGoal, setMonthlyGoal] = useState(DEFAULT_RI_MEDIAN_PAYMENT_FALLBACK);
             const [downPaymentMode, setDownPaymentMode] = useState('percentage'); 
             const [downPaymentPercent, setDownPaymentPercent] = useState(3.5);
             const [downPaymentFixed, setDownPaymentFixed] = useState(60000);
@@ -258,25 +563,108 @@
             const [showLeadForm, setShowLeadForm] = useState(false);
             const [formSubmitted, setFormSubmitted] = useState(false);
             const [isSubmitting, setIsSubmitting] = useState(false);
-            const [isRefreshingRate, setIsRefreshingRate] = useState(false);
+            const [isRefreshingRate, setIsRefreshingRate] = useState(true);
             const [rateError, setRateError] = useState("");
 
-            const captureRef = useRef(null);
+            const exportRef = useRef(null);
             const rateInputVersionRef = useRef(0);
             const rateRequestIdRef = useRef(0);
+            const monthlyGoalTouchedRef = useRef(false);
+            const hasSeededMonthlyGoalRef = useRef(false);
 
-            const [results, setResults] = useState({
+            const zeroResults = {
                 homePrice: 0,
                 loanAmount: 0,
                 downPaymentAmount: 0,
                 piti: { principalInterest: 0, taxes: 0, insurance: 0, pmi: 0 }
-            });
+            };
+
+            const [results, setResults] = useState(zeroResults);
 
             const PRESET_PERCENTAGES = [0, 3.5, 5, 10, 15, 20];
             const DISCLAIMER_TEXT = "This calculator is a planning tool based on your target monthly payment and estimated taxes, homeowners insurance, and mortgage insurance when applicable. Final preapproval and monthly payment can change after a lender reviews income, debts, assets, credit, loan terms, and actual property costs; only a licensed mortgage professional can issue a preapproval, and each office is independently owned and operated in support of equal housing opportunity.";
             const DOWN_PAYMENT_TIP_TEXT = "RI and MA do offer down payment and closing cost assistance for qualified buyers. Ask your lender during preapproval if you may be eligible.";
             const ESCROW_HELP_TEXT = "Your principal and interest stay more predictable, but taxes and homeowners insurance can change from one property to the next. Lenders collect those yearly costs monthly through escrow, so two homes at the same price can still have different total payments.";
             const INSURANCE_TIP_TEXT = "Homeowners insurance is one cost you can shop before closing. The premium you choose can raise or lower your final monthly mortgage payment.";
+
+            const toNonNegativeNumber = (value) => {
+                const parsed = Number.parseFloat(value);
+                return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+            };
+
+            const getPMIRate = (ltvPercent) => {
+                if (ltvPercent <= 80) return 0;
+                if (ltvPercent > 95) return (0.65 / 100) / 12;
+                if (ltvPercent > 90) return (0.50 / 100) / 12;
+                if (ltvPercent > 85) return (0.35 / 100) / 12;
+                return (0.20 / 100) / 12;
+            };
+
+            const calculateResultsForPrice = ({
+                price,
+                interestRateValue,
+                taxRateValue,
+                loanTermValue,
+                downPaymentModeValue,
+                downPaymentPercentValue,
+                downPaymentFixedValue
+            }) => {
+                const normalizedPrice = toNonNegativeNumber(price);
+                if (!(normalizedPrice > 0)) {
+                    return { ...zeroResults, totalPayment: 0 };
+                }
+
+                const normalizedInterestRate = toNonNegativeNumber(interestRateValue);
+                const normalizedTaxRate = toNonNegativeNumber(taxRateValue);
+                const normalizedDownPaymentPercent = Math.min(toNonNegativeNumber(downPaymentPercentValue), 100);
+                const normalizedDownPaymentFixed = toNonNegativeNumber(downPaymentFixedValue);
+                const normalizedLoanTerm = Math.max(Number(loanTermValue) || 0, 1) * 12;
+                const r = (normalizedInterestRate / 100) / 12;
+                const t = (normalizedTaxRate / 100) / 12;
+                const mc = r > 0 ? (r * Math.pow(1 + r, normalizedLoanTerm)) / (Math.pow(1 + r, normalizedLoanTerm) - 1) : 1 / normalizedLoanTerm;
+                const downPaymentAmount = downPaymentModeValue === 'percentage'
+                    ? normalizedPrice * (normalizedDownPaymentPercent / 100)
+                    : Math.min(normalizedDownPaymentFixed, normalizedPrice);
+                const loanAmount = Math.max(normalizedPrice - downPaymentAmount, 0);
+                const ltv = loanAmount > 0 ? (loanAmount / normalizedPrice) * 100 : 0;
+                const pmiRate = loanAmount > 0 ? getPMIRate(ltv) : 0;
+                const principalInterest = loanAmount * mc;
+                const taxes = normalizedPrice * t;
+                const insurance = (normalizedPrice * HOME_INSURANCE_RATE) / 12;
+                const pmi = loanAmount * pmiRate;
+
+                return {
+                    homePrice: normalizedPrice,
+                    loanAmount,
+                    downPaymentAmount,
+                    piti: {
+                        principalInterest,
+                        taxes,
+                        insurance,
+                        pmi
+                    },
+                    totalPayment: principalInterest + taxes + insurance + pmi
+                };
+            };
+
+            const seedMonthlyGoalFromMedianSalePrice = (rateValue) => {
+                if (hasSeededMonthlyGoalRef.current || monthlyGoalTouchedRef.current) return;
+
+                const seededResults = calculateResultsForPrice({
+                    price: DEFAULT_RI_MEDIAN_HOME_PRICE,
+                    interestRateValue: rateValue,
+                    taxRateValue: 1.25,
+                    loanTermValue: loanTerm,
+                    downPaymentModeValue: 'percentage',
+                    downPaymentPercentValue: 3.5,
+                    downPaymentFixedValue: downPaymentFixed
+                });
+
+                if (!(seededResults.totalPayment > 0)) return;
+
+                setMonthlyGoal(Math.round(seededResults.totalPayment));
+                hasSeededMonthlyGoalRef.current = true;
+            };
 
             useEffect(() => {
                 const initFirebase = async () => {
@@ -299,6 +687,16 @@
                     return () => unsubscribe();
                 };
                 initFirebase();
+            }, []);
+
+            useEffect(() => {
+                const handleAfterPrint = () => document.body.classList.remove('printing-export');
+                window.addEventListener('afterprint', handleAfterPrint);
+
+                return () => {
+                    window.removeEventListener('afterprint', handleAfterPrint);
+                    handleAfterPrint();
+                };
             }, []);
 
             const parseLatestMortgageNewsDailyRate = (html) => {
@@ -342,6 +740,7 @@
                     setLiveRateValue(latestRate.rate);
                     setRateDate(latestRate.date);
                     setIsRateLive(true);
+                    seedMonthlyGoalFromMedianSalePrice(latestRate.rate);
                     if (rateInputVersionRef.current === inputVersionAtRequestStart) {
                         setInterestRate(latestRate.rate.toFixed(2));
                     }
@@ -349,6 +748,7 @@
                     if (requestId !== rateRequestIdRef.current) return;
                     console.error('Unable to refresh the Mortgage News Daily rate.', error);
                     setRateError('Latest MND rate unavailable');
+                    seedMonthlyGoalFromMedianSalePrice(interestRate);
                 } finally {
                     if (requestId === rateRequestIdRef.current) {
                         setIsRefreshingRate(false);
@@ -361,89 +761,51 @@
             }, []);
 
             useEffect(() => {
-                const toNonNegativeNumber = (value) => {
-                    const parsed = Number.parseFloat(value);
-                    return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
-                };
-
-                const normalizedInterestRate = toNonNegativeNumber(interestRate);
                 const normalizedMonthlyGoal = toNonNegativeNumber(monthlyGoal);
-                const normalizedTaxRate = toNonNegativeNumber(stateTaxRate);
-                const normalizedDownPaymentPercent = Math.min(toNonNegativeNumber(downPaymentPercent), 100);
-                const normalizedDownPaymentFixed = toNonNegativeNumber(downPaymentFixed);
-                const r = (normalizedInterestRate / 100) / 12;
-                const n = Math.max(Number(loanTerm) || 0, 1) * 12;
-                const t = (normalizedTaxRate / 100) / 12;
-                const mc = r > 0 ? (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : 1 / n;
-                const zeroResults = {
-                    homePrice: 0,
-                    loanAmount: 0,
-                    downPaymentAmount: 0,
-                    piti: {
-                        principalInterest: 0,
-                        taxes: 0,
-                        insurance: 0,
-                        pmi: 0
-                    }
-                };
-
-                const getPMIRate = (ltvPercent) => {
-                    if (ltvPercent <= 80) return 0;
-                    if (ltvPercent > 95) return (0.65 / 100) / 12; 
-                    if (ltvPercent > 90) return (0.50 / 100) / 12; 
-                    if (ltvPercent > 85) return (0.35 / 100) / 12; 
-                    return (0.20 / 100) / 12; 
-                };
-
-                const calculateResultsForPrice = (price) => {
-                    if (!(price > 0)) {
-                        return { ...zeroResults, totalPayment: 0 };
-                    }
-
-                    const downPaymentAmount = downPaymentMode === 'percentage'
-                        ? price * (normalizedDownPaymentPercent / 100)
-                        : Math.min(normalizedDownPaymentFixed, price);
-                    const loanAmount = Math.max(price - downPaymentAmount, 0);
-                    const ltv = loanAmount > 0 ? (loanAmount / price) * 100 : 0;
-                    const pmiRate = loanAmount > 0 ? getPMIRate(ltv) : 0;
-                    const principalInterest = loanAmount * mc;
-                    const taxes = price * t;
-                    const insurance = (price * HOME_INSURANCE_RATE) / 12;
-                    const pmi = loanAmount * pmiRate;
-
-                    return {
-                        homePrice: price,
-                        loanAmount,
-                        downPaymentAmount,
-                        piti: {
-                            principalInterest,
-                            taxes,
-                            insurance,
-                            pmi
-                        },
-                        totalPayment: principalInterest + taxes + insurance + pmi
-                    };
-                };
 
                 if (normalizedMonthlyGoal <= 0) {
-                    setResults(zeroResults);
+                    setResults({ ...zeroResults });
                     return;
                 }
 
                 let low = 0;
                 let high = 100000;
-                let highResults = calculateResultsForPrice(high);
+                let highResults = calculateResultsForPrice({
+                    price: high,
+                    interestRateValue: interestRate,
+                    taxRateValue: stateTaxRate,
+                    loanTermValue: loanTerm,
+                    downPaymentModeValue: downPaymentMode,
+                    downPaymentPercentValue: downPaymentPercent,
+                    downPaymentFixedValue: downPaymentFixed
+                });
                 let growthSteps = 0;
 
                 while (highResults.totalPayment <= normalizedMonthlyGoal && growthSteps < 25) {
                     high *= 2;
-                    highResults = calculateResultsForPrice(high);
+                    highResults = calculateResultsForPrice({
+                        price: high,
+                        interestRateValue: interestRate,
+                        taxRateValue: stateTaxRate,
+                        loanTermValue: loanTerm,
+                        downPaymentModeValue: downPaymentMode,
+                        downPaymentPercentValue: downPaymentPercent,
+                        downPaymentFixedValue: downPaymentFixed
+                    });
                     growthSteps += 1;
                 }
 
                 for (let i = 0; i < 50; i += 1) {
                     const mid = (low + high) / 2;
-                    const midResults = calculateResultsForPrice(mid);
+                    const midResults = calculateResultsForPrice({
+                        price: mid,
+                        interestRateValue: interestRate,
+                        taxRateValue: stateTaxRate,
+                        loanTermValue: loanTerm,
+                        downPaymentModeValue: downPaymentMode,
+                        downPaymentPercentValue: downPaymentPercent,
+                        downPaymentFixedValue: downPaymentFixed
+                    });
                     if (midResults.totalPayment <= normalizedMonthlyGoal) {
                         low = mid;
                     } else {
@@ -451,7 +813,15 @@
                     }
                 }
 
-                const finalResults = calculateResultsForPrice(low);
+                const finalResults = calculateResultsForPrice({
+                    price: low,
+                    interestRateValue: interestRate,
+                    taxRateValue: stateTaxRate,
+                    loanTermValue: loanTerm,
+                    downPaymentModeValue: downPaymentMode,
+                    downPaymentPercentValue: downPaymentPercent,
+                    downPaymentFixedValue: downPaymentFixed
+                });
                 const roundedPrincipalInterest = Math.round(finalResults.piti.principalInterest);
                 const roundedTaxes = Math.round(finalResults.piti.taxes);
                 const roundedInsurance = Math.round(finalResults.piti.insurance);
@@ -476,8 +846,28 @@
             const formatCurrency = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
 
             const captureSummaryCanvas = async () => {
-                if (!captureRef.current) return null;
-                return html2canvas(captureRef.current, { backgroundColor: '#f2f2f2', scale: 2, useCORS: true });
+                const exportNode = exportRef.current?.querySelector('.export-sheet');
+                if (!exportNode) return null;
+
+                if (document.fonts?.ready) {
+                    await document.fonts.ready;
+                }
+
+                await new Promise((resolve) => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve)));
+
+                return html2canvas(exportNode, {
+                    backgroundColor: '#ffffff',
+                    scale: 2.5,
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: false,
+                    width: exportNode.scrollWidth,
+                    height: exportNode.scrollHeight,
+                    windowWidth: exportNode.scrollWidth,
+                    windowHeight: exportNode.scrollHeight,
+                    scrollX: 0,
+                    scrollY: 0
+                });
             };
 
             const handleSaveImage = async () => {
@@ -485,7 +875,7 @@
                 if (!canvas) return;
 
                 const link = document.createElement('a');
-                link.download = `Affordability Summary.png`;
+                link.download = `Joe Pine Monthly Affordability Summary.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             };
@@ -495,17 +885,30 @@
                 if (!canvas || !window.jspdf?.jsPDF) return;
 
                 const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({
-                    orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
-                    unit: 'px',
-                    format: [canvas.width, canvas.height]
-                });
+                const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const margin = 24;
+                let renderWidth = pageWidth - (margin * 2);
+                let renderHeight = (canvas.height * renderWidth) / canvas.width;
 
-                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height);
-                pdf.save('Affordability Summary.pdf');
+                if (renderHeight > pageHeight - (margin * 2)) {
+                    renderHeight = pageHeight - (margin * 2);
+                    renderWidth = (canvas.width * renderHeight) / canvas.height;
+                }
+
+                const x = (pageWidth - renderWidth) / 2;
+                const y = (pageHeight - renderHeight) / 2;
+
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, renderWidth, renderHeight, undefined, 'FAST');
+                pdf.save('Joe Pine Monthly Affordability Summary.pdf');
             };
 
-            const handlePrint = () => window.print();
+            const handlePrint = () => {
+                document.body.classList.add('printing-export');
+                window.print();
+                window.setTimeout(() => document.body.classList.remove('printing-export'), 1500);
+            };
 
             const handleSubmitLead = async (e) => {
                 e.preventDefault();
@@ -530,11 +933,7 @@
             };
 
             const stepTwoLink = `${JOE_INFO.kwSearchBase}${results.homePrice}`;
-            const shareText = `Based on a monthly payment of ${formatCurrency(monthlyGoal)} and a down payment of ${formatCurrency(results.downPaymentAmount)}, that monthly payment may afford a home around ${formatCurrency(results.homePrice)}. Browse homes here: ${stepTwoLink}`;
-            const emailDisclaimer = `Disclaimer: ${DISCLAIMER_TEXT}`;
-            const emailBody = `I wanted to share a quick estimate based on the information entered into Joe Pine's monthly payment calculator.\n\nBased on a monthly payment of ${formatCurrency(monthlyGoal)} and a down payment of ${formatCurrency(results.downPaymentAmount)}, that monthly payment may afford a home around ${formatCurrency(results.homePrice)}.\n\nThis is just a general estimate, but it can be a helpful starting point when thinking about budget and next steps.\n\nYou can also use this link to browse homes up to that price point on JoePine.com:\n${stepTwoLink}\n\nLet me know if you'd like to take a closer look at what may be possible within that range.\n\n${emailDisclaimer}`;
-            const mailtoLink = `mailto:?subject=Home Buying Power Estimate&body=${encodeURIComponent(emailBody)}`;
-            const smsLink = `sms:?body=${encodeURIComponent(shareText)}`;
+            const lenderLandingPageUrl = "lenders.html";
             const addressMatch = JOE_INFO.address.match(/^(.*?,\s*[A-Z]{2})\s+(\d{5}(?:-\d{4})?)$/);
             const addressLineOne = addressMatch ? addressMatch[1] : JOE_INFO.address;
             const addressLineTwo = addressMatch ? addressMatch[2] : "";
@@ -547,10 +946,159 @@
             const estimatedClosingCosts = Math.round(results.homePrice * ESTIMATED_CLOSING_COST_RATE);
             const estimatedCashNeeded = results.downPaymentAmount + estimatedClosingCosts;
             const estimatedTotalMonthlyPayment = results.piti.principalInterest + results.piti.taxes + results.piti.insurance + results.piti.pmi;
+            const locationLabel = Number(stateTaxRate) === 1.15 ? "MA" : "RI";
+            const closingCostLabel = `Estimated closing costs (${Math.round(ESTIMATED_CLOSING_COST_RATE * 100)}%)`;
+            const parsedInterestRate = Number.parseFloat(interestRate);
+            const currentRateValue = Number.isFinite(parsedInterestRate) ? parsedInterestRate : (Number.isFinite(liveRateValue) ? liveRateValue : null);
+            const formattedInterestRate = Number.isFinite(currentRateValue) ? currentRateValue.toFixed(2) : "N/A";
+            const isUsingLiveRate = Number.isFinite(currentRateValue) && Number.isFinite(liveRateValue) && Math.abs(currentRateValue - liveRateValue) < 0.005;
+            const rateSummaryLine = isUsingLiveRate
+                ? `Rate used: ${formattedInterestRate}% from Mortgage News Daily 30-Year Fixed${rateDate ? ` (${rateDate})` : ""}.`
+                : `Rate used: ${formattedInterestRate}% entered manually in the calculator.`;
+            const rateSourceLine = isUsingLiveRate
+                ? `Source link: ${MND_RATE_SOURCE_URL}`
+                : Number.isFinite(liveRateValue)
+                    ? `Latest Mortgage News Daily 30-Year Fixed on load: ${liveRateValue.toFixed(2)}%${rateDate ? ` (${rateDate})` : ""}. Source: ${MND_RATE_SOURCE_URL}`
+                    : `Rate source link: ${MND_RATE_SOURCE_URL}`;
+            const estimateMethodLine = `Taxes reflect the ${locationLabel} setting and homeowners insurance is estimated using this calculator's current assumptions.`;
+            const shareSummaryLines = [
+                `Estimated monthly payment: ${formatCurrency(estimatedTotalMonthlyPayment)}`,
+                `Down payment: ${formatCurrency(results.downPaymentAmount)}`,
+                `${closingCostLabel}: ${formatCurrency(estimatedClosingCosts)}`,
+                `Estimated cash to close: ${formatCurrency(estimatedCashNeeded)}`,
+                `Estimated home price: ${formatCurrency(results.homePrice)}`,
+                `Principal and interest: ${formatCurrency(results.piti.principalInterest)}`,
+                `Mortgage insurance: ${formatCurrency(results.piti.pmi)}`,
+                `Taxes: ${formatCurrency(results.piti.taxes)}`,
+                `Insurance: ${formatCurrency(results.piti.insurance)}`
+            ];
+            const shareText = [
+                "Joe Pine monthly affordability estimate",
+                ...shareSummaryLines,
+                rateSummaryLine,
+                estimateMethodLine,
+                `Browse homes in this range: ${stepTwoLink}`,
+                rateSourceLine,
+                `Disclaimer: ${DISCLAIMER_TEXT}`
+            ].join("\n");
+            const emailBody = [
+                "I wanted to share a quick estimate based on the information entered into Joe Pine's monthly affordability calculator.",
+                "",
+                "Estimate summary",
+                ...shareSummaryLines,
+                rateSummaryLine,
+                estimateMethodLine,
+                `Browse homes in this range on JoePine.com: ${stepTwoLink}`,
+                rateSourceLine,
+                "",
+                `Disclaimer: ${DISCLAIMER_TEXT}`
+            ].join("\n");
+            const mailtoLink = `mailto:?subject=${encodeURIComponent(`Home Buying Power Estimate - ${formatCurrency(results.homePrice)}`)}&body=${encodeURIComponent(emailBody)}`;
+            const smsLink = `sms:?body=${encodeURIComponent(shareText)}`;
 
             return (
                 <div className="min-h-screen pb-8 font-black text-[#212121]">
-                    <div className="max-w-6xl mx-auto px-4 pt-5 font-black" ref={captureRef}>
+                    <div ref={exportRef} className="export-sheet-print-host" aria-hidden="true">
+                        <div className="export-sheet">
+                            <div className="export-header">
+                                <div className="export-contact">
+                                    <div className="export-headshot">
+                                        <img src={JOE_INFO.headshotUrl} alt={JOE_INFO.name} />
+                                    </div>
+                                    <div className="export-identity">
+                                        <h1>{JOE_INFO.name}</h1>
+                                        <p>{JOE_INFO.title}</p>
+                                    </div>
+                                </div>
+                                <div className="export-contact-info">
+                                    <span>{JOE_INFO.phone}</span>
+                                    <span>{JOE_INFO.email}</span>
+                                    <span className="export-website">{JOE_INFO.website}</span>
+                                </div>
+                            </div>
+
+                            <div className="export-logos">
+                                <div className="export-logos-group">
+                                    <img src={JOE_INFO.logoUrl} alt="Keller Williams Leading Edge" className="export-logo-kw" />
+                                    <img src={JOE_INFO.platinumLogoUrl} alt="Platinum Real Estate Group" className="export-logo-platinum" />
+                                </div>
+                                <div className="export-office">
+                                    <span className="export-office-label">Office & Brokerage</span>
+                                    <span>{addressLineOne}</span>
+                                    {addressLineTwo && <span>{addressLineTwo}</span>}
+                                </div>
+                            </div>
+
+                            <div className="export-banner">
+                                <p className="export-banner-kicker">Monthly Affordability Summary</p>
+                                <h2>Estimate based on your target payment, down payment, closing costs, and current payment assumptions.</h2>
+                            </div>
+
+                            <div className="export-summary-grid">
+                                <div className="export-stat">
+                                    <p className="export-stat-label">Monthly Payment</p>
+                                    <p className="export-stat-value">{formatCurrency(estimatedTotalMonthlyPayment)}</p>
+                                </div>
+                                <div className="export-stat">
+                                    <p className="export-stat-label">Down Payment</p>
+                                    <p className="export-stat-value">{formatCurrency(results.downPaymentAmount)}</p>
+                                </div>
+                                <div className="export-stat">
+                                    <p className="export-stat-label">Closing Costs (3%)</p>
+                                    <p className="export-stat-value">{formatCurrency(estimatedClosingCosts)}</p>
+                                </div>
+                                <div className="export-stat">
+                                    <p className="export-stat-label">Cash To Close</p>
+                                    <p className="export-stat-value">{formatCurrency(estimatedCashNeeded)}</p>
+                                </div>
+                            </div>
+
+                            <div className="export-price-block">
+                                <p className="export-price-kicker">Estimated Home Price</p>
+                                <p className="export-price-value">{formatCurrency(results.homePrice)}</p>
+                                <p className="export-price-copy">Homes in this range may be the right place to start based on this affordability snapshot.</p>
+                            </div>
+
+                            <div className="export-breakdown-grid">
+                                <div className="export-panel">
+                                    <p className="export-panel-title">Loan Costs</p>
+                                    <div className="export-panel-row">
+                                        <span className="export-panel-label">Principal and interest</span>
+                                        <span className="export-panel-value">{formatCurrency(results.piti.principalInterest)}</span>
+                                    </div>
+                                    <div className="export-panel-row">
+                                        <span className="export-panel-label">Mortgage insurance</span>
+                                        <span className="export-panel-value">{formatCurrency(results.piti.pmi)}</span>
+                                    </div>
+                                </div>
+                                <div className="export-panel">
+                                    <p className="export-panel-title">Escrowed Funds</p>
+                                    <div className="export-panel-row">
+                                        <span className="export-panel-label">Taxes</span>
+                                        <span className="export-panel-value">{formatCurrency(results.piti.taxes)}</span>
+                                    </div>
+                                    <div className="export-panel-row">
+                                        <span className="export-panel-label">Insurance</span>
+                                        <span className="export-panel-value">{formatCurrency(results.piti.insurance)}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="export-meta">
+                                <p>{rateSummaryLine}</p>
+                                <p>{estimateMethodLine}</p>
+                                <p>Browse homes in this range: <span className="export-link">{stepTwoLink}</span></p>
+                                <p>{rateSourceLine}</p>
+                            </div>
+
+                            <div className="export-disclaimer">
+                                <p>{DISCLAIMER_TEXT}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="app-shell">
+                    <div className="max-w-6xl mx-auto px-4 pt-5 font-black">
                         <div className="brand-strip rounded-2xl premium-shadow mb-5 px-3 py-2.5 md:px-4 md:py-2.5 font-black avoid-print-break">
                             <div className="flex flex-col md:flex-row items-center justify-between gap-2.5 md:gap-4 font-black">
                                 <div className="flex items-center gap-2.5 md:gap-3 min-w-0">
@@ -592,7 +1140,10 @@
                                                 <label className="block text-xs uppercase mb-2 leading-none tracking-[0.15em] font-black text-gray-400">Monthly Target</label>
                                                 <div className="relative font-black">
                                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 font-black">$</span>
-                                                    <input type="number" value={monthlyGoal} onChange={(e) => setMonthlyGoal(e.target.value === "" ? "" : Number(e.target.value))} className="w-full h-14 bg-gray-50 border-2 border-gray-100 rounded-lg pl-10 pr-4 focus:border-[#b40101] outline-none font-black text-2xl transition-all font-black" />
+                                                    <input type="number" value={monthlyGoal} onChange={(e) => {
+                                                        monthlyGoalTouchedRef.current = true;
+                                                        setMonthlyGoal(e.target.value === "" ? "" : Number(e.target.value));
+                                                    }} className="w-full h-14 bg-gray-50 border-2 border-gray-100 rounded-lg pl-10 pr-4 focus:border-[#b40101] outline-none font-black text-2xl transition-all font-black" />
                                                 </div>
                                             </div>
                                             <div>
@@ -778,10 +1329,10 @@
                                                     Confirm your buying power with a licensed lender before you start touring homes.
                                                 </p>
                                             </div>
-                                            <button onClick={() => setShowLeadForm(true)} className="w-full bg-white hover:bg-red-50 text-[#b40101] font-black py-3 rounded-xl transition-all uppercase tracking-[0.18em] text-[9px] shadow-lg flex items-center justify-center gap-2 leading-none">
+                                            <a href={lenderLandingPageUrl} target="_blank" rel="noreferrer" className="w-full bg-white hover:bg-red-50 text-[#b40101] font-black py-3 rounded-xl transition-all uppercase tracking-[0.18em] text-[9px] shadow-lg flex items-center justify-center gap-2 leading-none">
                                                 <Icon name="ArrowRight" size={10} color="#b40101" />
-                                                Start Preapproval
-                                            </button>
+                                                View Lender Options
+                                            </a>
                                         </div>
                                         <div className="bg-gradient-to-br from-[#d71920] to-[#b40101] text-white p-5 rounded-2xl shadow-lg text-left relative overflow-hidden group font-black min-h-[220px] h-full flex flex-col justify-between border border-[#b40101]">
                                             <div>
@@ -847,12 +1398,20 @@
                         </div>
                     )}
 
-                    <footer className="max-w-6xl mx-auto px-4 mt-8 pb-6 leading-none font-black text-[#212121] font-black font-black font-black font-black">
-                        <div className="bg-gray-200 h-[1px] w-full mb-6 opacity-50 font-black font-black font-black font-black font-black font-black" />
-                        <div className="text-center font-black space-y-4 font-black font-black font-black font-black font-black">
-                            <p className="text-[8px] text-gray-300 font-black uppercase tracking-widest font-black font-black font-black font-black font-black font-black">Rhode Island and Massachusetts Real Estate</p>
+                    <footer className="max-w-6xl mx-auto px-4 mt-8 pb-6 leading-none font-black text-[#212121]">
+                        <div className="bg-gray-200 h-[1px] w-full mb-6 opacity-50" />
+                        <div className="text-center space-y-3">
+                            <p className="text-[9px] text-gray-400 uppercase tracking-[0.22em] font-black">Rhode Island and Massachusetts Real Estate</p>
+                            <p className="text-sm md:text-base uppercase tracking-[0.12em] text-[#314768] font-black">{JOE_INFO.name} | {JOE_INFO.title}</p>
+                            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[11px] md:text-xs text-[#314768] leading-relaxed">
+                                <a href={`tel:${JOE_INFO.phone.replace(/\D/g,'')}`} className="hover:text-[#b40101] transition-colors">{JOE_INFO.phone}</a>
+                                <a href={`mailto:${JOE_INFO.email}`} className="hover:text-[#b40101] transition-colors">{JOE_INFO.email}</a>
+                                <a href={`https://${JOE_INFO.website}`} target="_blank" rel="noreferrer" className="text-[#b40101] underline underline-offset-2 hover:text-red-700">{JOE_INFO.website}</a>
+                                <span>{JOE_INFO.address}</span>
+                            </div>
                         </div>
                     </footer>
+                    </div>
                 </div>
             );
         };
