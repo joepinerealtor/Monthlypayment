@@ -583,7 +583,7 @@
 
             const PRESET_PERCENTAGES = [0, 3.5, 5, 10, 15, 20];
             const DISCLAIMER_TEXT = "This calculator is a planning tool based on your target monthly payment and estimated taxes, homeowners insurance, and mortgage insurance when applicable. Final preapproval and monthly payment can change after a lender reviews income, debts, assets, credit, loan terms, and actual property costs; only a licensed mortgage professional can issue a preapproval, and each office is independently owned and operated in support of equal housing opportunity.";
-            const DOWN_PAYMENT_TIP_TEXT = "RI and MA do offer down payment and closing cost assistance for qualified buyers. Ask your lender during preapproval if you may be eligible.";
+            const DOWN_PAYMENT_TIP_TEXT = "RI and MA offer down payment and closing cost assistance for qualified buyers. Ask your lender during preapproval if you may be eligible.";
             const ESCROW_HELP_TEXT = "Your principal and interest stay more predictable, but taxes and homeowners insurance can change from one property to the next. Lenders collect those yearly costs monthly through escrow, so two homes at the same price can still have different total payments.";
             const INSURANCE_TIP_TEXT = "Homeowners insurance is one cost you can shop before closing. The premium you choose can raise or lower your final monthly mortgage payment.";
 
@@ -1218,14 +1218,14 @@
                                                         )}
                                                     </div>
                                                 </div>
-                                                <div className="flex items-stretch gap-2 font-black">
+                                                <div className="flex flex-col sm:flex-row items-stretch gap-2 font-black">
                                                     <input type="number" step="0.01" value={interestRate} placeholder={liveRateValue ? liveRateValue.toFixed(2) : "6.25"} onChange={(e) => {
                                                         rateInputVersionRef.current += 1;
                                                         setInterestRate(e.target.value);
                                                     }} className="w-full min-w-0 bg-gray-50 border-2 border-gray-100 rounded-lg py-3 px-4 focus:border-[#b40101] outline-none font-black text-xl" />
-                                                    <button type="button" onClick={fetchLiveRate} disabled={isRefreshingRate} title="Reset to the latest Mortgage News Daily 30 year fixed rate" className="shrink-0 inline-flex items-center justify-center gap-1.5 px-3 rounded-lg border-2 border-[#b40101] bg-[#b40101] text-white hover:bg-red-700 hover:border-red-700 transition-colors leading-none text-[9px] uppercase font-black shadow-sm disabled:opacity-50 disabled:bg-[#b40101] disabled:border-[#b40101] disabled:text-white">
+                                                    <button type="button" onClick={fetchLiveRate} disabled={isRefreshingRate} title="Reset to the latest Mortgage News Daily 30 year fixed rate" className="w-full sm:w-auto sm:min-w-[92px] shrink-0 inline-flex min-h-[52px] items-center justify-center gap-1.5 px-4 rounded-lg border-2 border-[#b40101] bg-[#b40101] text-white hover:bg-red-700 hover:border-red-700 transition-colors leading-none text-[9px] uppercase font-black shadow-sm disabled:opacity-50 disabled:bg-[#b40101] disabled:border-[#b40101] disabled:text-white">
                                                         <Icon name="RefreshCw" size={10} color="white" className={isRefreshingRate ? "animate-spin" : ""} />
-                                                        <span className="hidden md:inline">{isRefreshingRate ? "Updating" : "Reset"}</span>
+                                                        <span>{isRefreshingRate ? "Updating" : "Reset"}</span>
                                                     </button>
                                                 </div>
                                             </div>
