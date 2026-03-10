@@ -374,8 +374,10 @@
             };
 
             const stepTwoLink = `${JOE_INFO.kwSearchBase}${results.homePrice}`;
-            const shareText = `Based on a monthly payment of ${formatCurrency(monthlyGoal)} and ${formatCurrency(results.downPaymentAmount)} as a down payment, homes around ${formatCurrency(results.homePrice)} are the price range this monthly payment can afford. Start the hunt here: ${stepTwoLink}`;
-            const mailtoLink = `mailto:?subject=Home Buying Power Estimate&body=${encodeURIComponent(shareText)}`;
+            const shareText = `Based on a monthly payment of ${formatCurrency(monthlyGoal)} and a down payment of ${formatCurrency(results.downPaymentAmount)}, that monthly payment may afford a home around ${formatCurrency(results.homePrice)}. Browse homes here: ${stepTwoLink}`;
+            const emailDisclaimer = `Disclaimer: This calculator is a planning tool based on your target monthly payment and estimated taxes, homeowners insurance, and mortgage insurance when applicable. Final preapproval and monthly payment can change after a lender reviews income, debts, assets, credit, loan terms, and actual property costs; only a licensed mortgage professional can issue a preapproval.`;
+            const emailBody = `I wanted to share a quick estimate based on the information entered into Joe Pine's monthly payment calculator.\n\nBased on a monthly payment of ${formatCurrency(monthlyGoal)} and a down payment of ${formatCurrency(results.downPaymentAmount)}, that monthly payment may afford a home around ${formatCurrency(results.homePrice)}.\n\nThis is just a general estimate, but it can be a helpful starting point when thinking about budget and next steps.\n\nYou can also use this link to browse homes up to that price point on JoePine.com:\n${stepTwoLink}\n\nLet me know if you'd like to take a closer look at what may be possible within that range.\n\n${emailDisclaimer}`;
+            const mailtoLink = `mailto:?subject=Home Buying Power Estimate&body=${encodeURIComponent(emailBody)}`;
             const smsLink = `sms:?body=${encodeURIComponent(shareText)}`;
 
             return (
@@ -536,7 +538,13 @@
                                     <div className="text-left bg-[#fcfcfc] p-4 rounded-xl border border-gray-100 border-l-4 border-l-[#b40101] font-black font-black font-black">
                                         <h3 className="uppercase text-[8px] mb-2 flex items-center gap-2 tracking-[0.2em] leading-none italic font-black text-[#b40101] font-black font-black font-black"><Icon name="Calendar" size={12} color="#b40101" /> How Escrow Works</h3>
                                         <p className="text-[9px] text-gray-500 leading-relaxed font-black uppercase tracking-wide font-black font-black font-black">
-                                            While your loan costs stay the same every month the property costs are the moving target. Each home has its own specific tax assessment and insurance needs. This means two houses listed for the exact same price in different towns could have monthly payments that look nothing alike. Banks take your yearly insurance and tax bill then divide them by 12 months to collect them with your mortgage for a predictable payment.
+                                            Your principal and interest stay more predictable, but taxes and homeowners insurance can change from one property to the next. Lenders collect those yearly costs monthly through escrow, so two homes at the same price can still have different total payments.
+                                        </p>
+                                    </div>
+
+                                    <div className="text-left bg-gray-50 p-4 rounded-xl border border-gray-100 font-black">
+                                        <p className="text-[8px] text-gray-500 leading-relaxed uppercase tracking-[0.12em] font-black">
+                                            This calculator is a planning tool based on your target monthly payment and estimated taxes, homeowners insurance, and mortgage insurance when applicable. Final preapproval and monthly payment can change after a lender reviews income, debts, assets, credit, loan terms, and actual property costs; only a licensed mortgage professional can issue a preapproval, and each office is independently owned and operated in support of equal housing opportunity.
                                         </p>
                                     </div>
                                     
@@ -600,9 +608,6 @@
                     <footer className="max-w-6xl mx-auto px-4 mt-8 pb-6 leading-none font-black text-[#212121] font-black font-black font-black font-black">
                         <div className="bg-gray-200 h-[1px] w-full mb-6 opacity-50 font-black font-black font-black font-black font-black font-black" />
                         <div className="text-center font-black space-y-4 font-black font-black font-black font-black font-black">
-                            <p className="text-[10px] text-gray-500 leading-relaxed font-black uppercase tracking-wide max-w-4xl mx-auto font-black font-black font-black font-black font-black font-black">
-                                This estimate is based on calculations using your target monthly payment, estimated property taxes, homeowners insurance, and mortgage insurance when applicable. These numbers are a helpful theoretical way to see how much home your monthly payment may afford, but they are for informational purposes only and do not constitute a commitment to lend. Your preapproval amount and final monthly payment can change after a lender verifies income, debts, assets, credit profile, loan program terms, and the actual tax assessment and insurance costs for a specific property. Joe Pine, Keller Williams Leading Edge, and Platinum Real Estate Group support equal housing opportunity, and each office is independently owned and operated. Only a licensed mortgage professional can issue a formal preapproval. Always consult a licensed loan professional for mortgage and financial guidance.
-                            </p>
                             <p className="text-[8px] text-gray-300 font-black uppercase tracking-widest font-black font-black font-black font-black font-black font-black">Rhode Island and Massachusetts Real Estate</p>
                         </div>
                     </footer>
