@@ -613,6 +613,7 @@
                     <p>This page is set up to make lender options easy to compare. Each card shows who the lender is, how to reach them, where they are licensed, and where to start the preapproval conversation.</p>
                     <div class="hero-actions">
                         <a class="button button-primary" href="index.html">Back to Calculator</a>
+                        <a id="budgetSearchLink" class="button button-secondary" href="index.html">Set Budget In Calculator</a>
                         <a class="button button-secondary" href="mailto:JoePine@KW.com?subject=Connect%20Me%20With%20A%20Lender">Have Joe Make an Intro</a>
                     </div>
                 </div>
@@ -663,6 +664,8 @@
     </main>
 
     <script>
+        const HOME_SEARCH_URL_PREFIX = "https://joepine.kw.com/search/sale?viewport=42.536786872843024%2C-69.92003930749948%2C41.089594667716725%2C-72.55675805749948&price=0%2C";
+        const HOME_SEARCH_URL_SUFFIX = "&property_subtype=HOUSE%2CTOWNHOUSE%2CCONDO%2CMANUFACTURED%2CMULTIFAMILY%2CCOOP%2CAPARTMENT";
         const lenders = [
             {
                 name: "Darrin Ruzzano",
@@ -719,6 +722,23 @@
         ];
 
         const lenderGrid = document.getElementById('lenderGrid');
+        const budgetSearchLink = document.getElementById('budgetSearchLink');
+        const budgetParam = Number.parseInt(new URLSearchParams(window.location.search).get('budget') || '0', 10);
+        const searchBudget = Number.isFinite(budgetParam) && budgetParam > 0 ? budgetParam : 0;
+
+        if (budgetSearchLink) {
+            if (searchBudget > 0) {
+                budgetSearchLink.href = `${HOME_SEARCH_URL_PREFIX}${searchBudget}${HOME_SEARCH_URL_SUFFIX}`;
+                budgetSearchLink.target = "_blank";
+                budgetSearchLink.rel = "noreferrer";
+                budgetSearchLink.textContent = "Browse Homes In Budget";
+            } else {
+                budgetSearchLink.href = "index.html";
+                budgetSearchLink.removeAttribute("target");
+                budgetSearchLink.removeAttribute("rel");
+                budgetSearchLink.textContent = "Set Budget In Calculator";
+            }
+        }
 
         lenderGrid.innerHTML = lenders.map((lender) => {
             const initials = lender.name
