@@ -539,18 +539,17 @@
                 headshotUrl: "Joe (1).JPG",
                 logoUrl: "KellerWilliams_Realty_LeadingEdge_Logo_RGB.png",
                 platinumLogoUrl: "Platinum Logo Black Transparent (1).png",
-                kwSearchBase: "https://joepine.kw.com/search/sale?viewport=42.17805594042946%2C-70.57921899499948%2C41.454456956957046%2C-71.89757836999948&price=null%2C"
+                kwSearchBase: "https://joepine.kw.com/search/sale?viewport=42.536786872843024%2C-69.92003930749948%2C41.089594667716725%2C-72.55675805749948&price=0%2C",
+                kwSearchSuffix: "&property_subtype=HOUSE%2CTOWNHOUSE%2CCONDO%2CMANUFACTURED%2CMULTIFAMILY%2CCOOP%2CAPARTMENT"
             };
             const MND_RATE_SOURCE_URL = "https://www.mortgagenewsdaily.com/mortgage-rates/30-year-fixed";
             const MND_RATE_PROXY_URL = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(MND_RATE_SOURCE_URL)}`;
             const HOME_INSURANCE_RATE = 0.005;
             const ESTIMATED_CLOSING_COST_RATE = 0.03;
-            const DEFAULT_RI_MEDIAN_HOME_PRICE = 499000;
-            const DEFAULT_RI_MEDIAN_PAYMENT_FALLBACK = 3953;
 
             const [user, setUser] = useState(null);
             const [db, setDb] = useState(null);
-            const [monthlyGoal, setMonthlyGoal] = useState(DEFAULT_RI_MEDIAN_PAYMENT_FALLBACK);
+            const [monthlyGoal, setMonthlyGoal] = useState(0);
             const [downPaymentMode, setDownPaymentMode] = useState('percentage'); 
             const [downPaymentPercent, setDownPaymentPercent] = useState(3.5);
             const [downPaymentFixed, setDownPaymentFixed] = useState(60000);
@@ -569,8 +568,6 @@
             const exportRef = useRef(null);
             const rateInputVersionRef = useRef(0);
             const rateRequestIdRef = useRef(0);
-            const monthlyGoalTouchedRef = useRef(false);
-            const hasSeededMonthlyGoalRef = useRef(false);
 
             const zeroResults = {
                 homePrice: 0,
@@ -647,25 +644,6 @@
                 };
             };
 
-            const seedMonthlyGoalFromMedianSalePrice = (rateValue) => {
-                if (hasSeededMonthlyGoalRef.current || monthlyGoalTouchedRef.current) return;
-
-                const seededResults = calculateResultsForPrice({
-                    price: DEFAULT_RI_MEDIAN_HOME_PRICE,
-                    interestRateValue: rateValue,
-                    taxRateValue: 1.25,
-                    loanTermValue: loanTerm,
-                    downPaymentModeValue: 'percentage',
-                    downPaymentPercentValue: 3.5,
-                    downPaymentFixedValue: downPaymentFixed
-                });
-
-                if (!(seededResults.totalPayment > 0)) return;
-
-                setMonthlyGoal(Math.round(seededResults.totalPayment));
-                hasSeededMonthlyGoalRef.current = true;
-            };
-
             useEffect(() => {
                 const initFirebase = async () => {
                     if (!window.firebase_lib || typeof __firebase_config === 'undefined') return;
@@ -740,7 +718,6 @@
                     setLiveRateValue(latestRate.rate);
                     setRateDate(latestRate.date);
                     setIsRateLive(true);
-                    seedMonthlyGoalFromMedianSalePrice(latestRate.rate);
                     if (rateInputVersionRef.current === inputVersionAtRequestStart) {
                         setInterestRate(latestRate.rate.toFixed(2));
                     }
@@ -748,7 +725,6 @@
                     if (requestId !== rateRequestIdRef.current) return;
                     console.error('Unable to refresh the Mortgage News Daily rate.', error);
                     setRateError('Latest MND rate unavailable');
-                    seedMonthlyGoalFromMedianSalePrice(interestRate);
                 } finally {
                     if (requestId === rateRequestIdRef.current) {
                         setIsRefreshingRate(false);
@@ -932,8 +908,9 @@
                 } catch (error) { } finally { setIsSubmitting(false); }
             };
 
-            const stepTwoLink = `${JOE_INFO.kwSearchBase}${results.homePrice}`;
-            const lenderLandingPageUrl = "lenders.html";
+            const calculatedBudget = Math.max(Number(results.homePrice) || 0, 0);
+            const stepTwoLink = `${JOE_INFO.kwSearchBase}${calculatedBudget}${JOE_INFO.kwSearchSuffix}`;
+            const lenderLandingPageUrl = `lenders.html?budget=${calculatedBudget}`;
             const addressMatch = JOE_INFO.address.match(/^(.*?,\s*[A-Z]{2})\s+(\d{5}(?:-\d{4})?)$/);
             const addressLineOne = addressMatch ? addressMatch[1] : JOE_INFO.address;
             const addressLineTwo = addressMatch ? addressMatch[2] : "";
@@ -1140,10 +1117,7 @@
                                                 <label className="block text-xs uppercase mb-2 leading-none tracking-[0.15em] font-black text-gray-400">Monthly Target</label>
                                                 <div className="relative font-black">
                                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 font-black">$</span>
-                                                    <input type="number" value={monthlyGoal} onChange={(e) => {
-                                                        monthlyGoalTouchedRef.current = true;
-                                                        setMonthlyGoal(e.target.value === "" ? "" : Number(e.target.value));
-                                                    }} className="w-full h-14 bg-gray-50 border-2 border-gray-100 rounded-lg pl-10 pr-4 focus:border-[#b40101] outline-none font-black text-2xl transition-all font-black" />
+                                                    <input type="number" value={monthlyGoal} onChange={(e) => setMonthlyGoal(e.target.value === "" ? "" : Number(e.target.value))} className="w-full h-14 bg-gray-50 border-2 border-gray-100 rounded-lg pl-10 pr-4 focus:border-[#b40101] outline-none font-black text-2xl transition-all font-black" />
                                                 </div>
                                             </div>
                                             <div>
