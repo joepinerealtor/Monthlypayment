@@ -468,6 +468,47 @@
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
+        const CALCULATOR_PREFS_KEY = "joePineMonthlyAffordabilityPrefs";
+
+        const readCookieValue = (key) => {
+            if (typeof document === "undefined") return "";
+
+            const match = document.cookie.match(new RegExp(`(?:^|; )${key}=([^;]*)`));
+            return match ? decodeURIComponent(match[1]) : "";
+        };
+
+        const readPersistedCalculatorPrefs = () => {
+            let rawPrefs = "";
+
+            try {
+                rawPrefs = window.localStorage.getItem(CALCULATOR_PREFS_KEY) || "";
+            } catch (error) {}
+
+            if (!rawPrefs) {
+                rawPrefs = readCookieValue(CALCULATOR_PREFS_KEY);
+            }
+
+            if (!rawPrefs) return {};
+
+            try {
+                const parsedPrefs = JSON.parse(rawPrefs);
+                return parsedPrefs && typeof parsedPrefs === "object" ? parsedPrefs : {};
+            } catch (error) {
+                return {};
+            }
+        };
+
+        const persistCalculatorPrefs = (prefs) => {
+            const serializedPrefs = JSON.stringify(prefs);
+
+            try {
+                window.localStorage.setItem(CALCULATOR_PREFS_KEY, serializedPrefs);
+            } catch (error) {}
+
+            try {
+                document.cookie = `${CALCULATOR_PREFS_KEY}=${encodeURIComponent(serializedPrefs)}; max-age=${60 * 60 * 24 * 90}; path=/; SameSite=Lax`;
+            } catch (error) {}
+        };
 
         const Icon = ({ name, size = 16, className = "", color = "currentColor" }) => {
             const iconRef = useRef(null);
@@ -542,23 +583,71 @@
                 kwSearchBase: "https://joepine.kw.com/search/sale?viewport=42.536786872843024%2C-69.92003930749948%2C41.089594667716725%2C-72.55675805749948&price=0%2C",
                 kwSearchSuffix: "&property_subtype=HOUSE%2CTOWNHOUSE%2CCONDO%2CMANUFACTURED%2CMULTIFAMILY%2CCOOP%2CAPARTMENT"
             };
-            const MND_RATE_SOURCE_URL = "https://www.mortgagenewsdaily.com/mortgage-rates/30-year-fixed";
-            const MND_RATE_PROXY_URL = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(MND_RATE_SOURCE_URL)}`;
+            const RATE_PROGRAMS = {
+                conventional: {
+                    label: "Conventional",
+                    summaryLabel: "30-Year Fixed",
+                    statusLabel: "30 year fixed",
+                    surveyName: "30 Year Fixed",
+                    sourceUrl: "https://www.mortgagenewsdaily.com/mortgage-rates/30-year-fixed",
+                    minimumDownPaymentPercent: 5,
+                    defaultDownPaymentPercent: 5
+                },
+                fha: {
+                    label: "FHA",
+                    summaryLabel: "30-Year FHA",
+                    statusLabel: "30 year FHA",
+                    surveyName: "30 Year FHA",
+                    sourceUrl: "https://www.mortgagenewsdaily.com/mortgage-rates/30-year-fha",
+                    minimumDownPaymentPercent: 3.5,
+                    defaultDownPaymentPercent: 3.5
+                },
+                va: {
+                    label: "VA",
+                    summaryLabel: "30-Year VA",
+                    statusLabel: "30 year VA",
+                    surveyName: "30 Year VA",
+                    sourceUrl: "https://www.mortgagenewsdaily.com/mortgage-rates/30-year-va",
+                    minimumDownPaymentPercent: 0,
+                    defaultDownPaymentPercent: 0
+                }
+            };
             const HOME_INSURANCE_RATE = 0.005;
             const ESTIMATED_CLOSING_COST_RATE = 0.03;
+            const PRESET_PERCENTAGES = [0, 3.5, 5, 10, 15, 20];
+            const persistedPrefsRef = useRef(readPersistedCalculatorPrefs());
+            const persistedPrefs = persistedPrefsRef.current;
+            const initialLoanProgram = RATE_PROGRAMS[persistedPrefs.loanProgram] ? persistedPrefs.loanProgram : "conventional";
+            const initialDownPaymentMode = persistedPrefs.downPaymentMode === "custom" ? "custom" : "percentage";
+            const normalizePresetDownPaymentPercent = (loanProgramValue, rawPercent) => {
+                const program = RATE_PROGRAMS[loanProgramValue] || RATE_PROGRAMS.conventional;
+                const parsedPercent = Number(rawPercent);
+                const matchingPreset = PRESET_PERCENTAGES.find((pct) => Math.abs(pct - parsedPercent) < 0.001);
+                if (matchingPreset == null || matchingPreset < program.minimumDownPaymentPercent) {
+                    return program.defaultDownPaymentPercent;
+                }
+                return matchingPreset;
+            };
+            const initialInterestRate = typeof persistedPrefs.interestRate === "string"
+                ? persistedPrefs.interestRate
+                : persistedPrefs.interestRate != null
+                    ? String(persistedPrefs.interestRate)
+                    : "6.25";
+            const hasPersistedInterestRate = initialInterestRate.trim() !== "";
 
             const [user, setUser] = useState(null);
             const [db, setDb] = useState(null);
-            const [monthlyGoal, setMonthlyGoal] = useState(0);
-            const [downPaymentMode, setDownPaymentMode] = useState('percentage'); 
-            const [downPaymentPercent, setDownPaymentPercent] = useState(3.5);
-            const [downPaymentFixed, setDownPaymentFixed] = useState(60000);
-            const [interestRate, setInterestRate] = useState("6.25");
+            const [monthlyGoal, setMonthlyGoal] = useState(() => Number.isFinite(Number(persistedPrefs.monthlyGoal)) ? Number(persistedPrefs.monthlyGoal) : 0);
+            const [loanProgram, setLoanProgram] = useState(initialLoanProgram);
+            const [downPaymentMode, setDownPaymentMode] = useState(initialDownPaymentMode); 
+            const [downPaymentPercent, setDownPaymentPercent] = useState(() => normalizePresetDownPaymentPercent(initialLoanProgram, persistedPrefs.downPaymentPercent));
+            const [downPaymentFixed, setDownPaymentFixed] = useState(() => Number.isFinite(Number(persistedPrefs.downPaymentFixed)) ? Number(persistedPrefs.downPaymentFixed) : 60000);
+            const [interestRate, setInterestRate] = useState(initialInterestRate || "6.25");
             const [liveRateValue, setLiveRateValue] = useState(null);
             const [isRateLive, setIsRateLive] = useState(false);
             const [rateDate, setRateDate] = useState("");
-            const [loanTerm, setLoanTerm] = useState(30);
-            const [stateTaxRate, setStateTaxRate] = useState(1.25); 
+            const [loanTerm, setLoanTerm] = useState(() => Number.isFinite(Number(persistedPrefs.loanTerm)) ? Number(persistedPrefs.loanTerm) : 30);
+            const [stateTaxRate, setStateTaxRate] = useState(() => Number.isFinite(Number(persistedPrefs.stateTaxRate)) ? Number(persistedPrefs.stateTaxRate) : 1.25); 
             const [showLeadForm, setShowLeadForm] = useState(false);
             const [formSubmitted, setFormSubmitted] = useState(false);
             const [isSubmitting, setIsSubmitting] = useState(false);
@@ -568,6 +657,8 @@
             const exportRef = useRef(null);
             const rateInputVersionRef = useRef(0);
             const rateRequestIdRef = useRef(0);
+            const shouldAutoApplyLiveRateRef = useRef(!hasPersistedInterestRate);
+            const hasInitializedRateProgramRef = useRef(false);
 
             const zeroResults = {
                 homePrice: 0,
@@ -578,7 +669,11 @@
 
             const [results, setResults] = useState(zeroResults);
 
-            const PRESET_PERCENTAGES = [0, 3.5, 5, 10, 15, 20];
+            const currentRateProgram = RATE_PROGRAMS[loanProgram] || RATE_PROGRAMS.conventional;
+            const MND_RATE_SOURCE_URL = currentRateProgram.sourceUrl;
+            const MND_RATE_PROXY_URL = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(MND_RATE_SOURCE_URL)}`;
+            const activeDownPaymentPercent = normalizePresetDownPaymentPercent(loanProgram, downPaymentPercent);
+            const isPresetDisabled = (pct) => pct < currentRateProgram.minimumDownPaymentPercent;
             const DISCLAIMER_TEXT = "This calculator is a planning tool based on your target monthly payment and estimated taxes, homeowners insurance, and mortgage insurance when applicable. Final preapproval and monthly payment can change after a lender reviews income, debts, assets, credit, loan terms, and actual property costs; only a licensed mortgage professional can issue a preapproval, and each office is independently owned and operated in support of equal housing opportunity.";
             const DOWN_PAYMENT_TIP_TEXT = "RI and MA offer down payment and closing cost assistance for qualified buyers. Ask your lender during preapproval if you may be eligible.";
             const ESCROW_HELP_TEXT = "Your principal and interest stay more predictable, but taxes and homeowners insurance can change from one property to the next. Lenders collect those yearly costs monthly through escrow, so two homes at the same price can still have different total payments.";
@@ -597,8 +692,14 @@
                 return (0.20 / 100) / 12;
             };
 
+            const getMortgageInsuranceRate = (loanProgramValue, ltvPercent) => {
+                if (loanProgramValue === "va") return 0;
+                return getPMIRate(ltvPercent);
+            };
+
             const calculateResultsForPrice = ({
                 price,
+                loanProgramValue,
                 interestRateValue,
                 taxRateValue,
                 loanTermValue,
@@ -624,7 +725,7 @@
                     : Math.min(normalizedDownPaymentFixed, normalizedPrice);
                 const loanAmount = Math.max(normalizedPrice - downPaymentAmount, 0);
                 const ltv = loanAmount > 0 ? (loanAmount / normalizedPrice) * 100 : 0;
-                const pmiRate = loanAmount > 0 ? getPMIRate(ltv) : 0;
+                const pmiRate = loanAmount > 0 ? getMortgageInsuranceRate(loanProgramValue, ltv) : 0;
                 const principalInterest = loanAmount * mc;
                 const taxes = normalizedPrice * t;
                 const insurance = (normalizedPrice * HOME_INSURANCE_RATE) / 12;
@@ -668,6 +769,27 @@
             }, []);
 
             useEffect(() => {
+                persistCalculatorPrefs({
+                    monthlyGoal: monthlyGoal === "" ? 0 : Number(monthlyGoal) || 0,
+                    loanProgram,
+                    downPaymentMode,
+                    downPaymentPercent: activeDownPaymentPercent === "" ? 0 : Number(activeDownPaymentPercent) || 0,
+                    downPaymentFixed: downPaymentFixed === "" ? 0 : Number(downPaymentFixed) || 0,
+                    interestRate: interestRate == null ? "" : String(interestRate),
+                    loanTerm: Number(loanTerm) || 30,
+                    stateTaxRate: Number(stateTaxRate) || 1.25
+                });
+            }, [monthlyGoal, loanProgram, downPaymentMode, activeDownPaymentPercent, downPaymentFixed, interestRate, loanTerm, stateTaxRate]);
+
+            useEffect(() => {
+                if (downPaymentMode !== "percentage") return;
+
+                if (activeDownPaymentPercent !== downPaymentPercent) {
+                    setDownPaymentPercent(activeDownPaymentPercent);
+                }
+            }, [loanProgram, downPaymentMode, downPaymentPercent, activeDownPaymentPercent]);
+
+            useEffect(() => {
                 const handleAfterPrint = () => document.body.classList.remove('printing-export');
                 window.addEventListener('afterprint', handleAfterPrint);
 
@@ -677,13 +799,22 @@
                 };
             }, []);
 
-            const parseLatestMortgageNewsDailyRate = (html) => {
-                const surveyMatch = html.match(/MND's 30 Year Fixed \(daily survey\)[\s\S]*?<span class="hidden-xs">([^<]+)<\/span>[\s\S]*?<td class="rate">([0-9.]+)%<\/td>/i);
-                if (surveyMatch) {
-                    return {
-                        date: surveyMatch[1].trim(),
-                        rate: Number.parseFloat(surveyMatch[2])
-                    };
+            const parseLatestMortgageNewsDailyRate = (html, surveyName) => {
+                const escapedSurveyName = surveyName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const surveyHeading = `MND's ${escapedSurveyName} \\(daily survey\\)`;
+                const surveyPatterns = [
+                    new RegExp(`${surveyHeading}[\\s\\S]*?<span class="hidden-xs">([^<]+)<\\/span>[\\s\\S]*?<td class="rate">([0-9.]+)%<\\/td>`, "i"),
+                    new RegExp(`${surveyHeading}[\\s\\S]*?<td[^>]*>\\s*([0-9./-]+)\\s*<\\/td>[\\s\\S]*?<td class="rate">([0-9.]+)%<\\/td>`, "i")
+                ];
+
+                for (const pattern of surveyPatterns) {
+                    const surveyMatch = html.match(pattern);
+                    if (surveyMatch) {
+                        return {
+                            date: surveyMatch[1].trim(),
+                            rate: Number.parseFloat(surveyMatch[2])
+                        };
+                    }
                 }
 
                 const currentRateMatch = html.match(/<div class="current-rate"[^>]*>\s*([0-9.]+)%/i);
@@ -697,7 +828,7 @@
                 return null;
             };
 
-            const fetchLiveRate = async () => {
+            const fetchLiveRate = async (forceApply = false) => {
                 const requestId = ++rateRequestIdRef.current;
                 const inputVersionAtRequestStart = rateInputVersionRef.current;
                 setIsRefreshingRate(true);
@@ -708,7 +839,7 @@
                     if (!response.ok) throw new Error(`Rate request failed with status ${response.status}`);
 
                     const html = await response.text();
-                    const latestRate = parseLatestMortgageNewsDailyRate(html);
+                    const latestRate = parseLatestMortgageNewsDailyRate(html, currentRateProgram.surveyName);
                     if (!latestRate || !Number.isFinite(latestRate.rate)) {
                         throw new Error('Could not parse the latest Mortgage News Daily rate.');
                     }
@@ -718,12 +849,13 @@
                     setLiveRateValue(latestRate.rate);
                     setRateDate(latestRate.date);
                     setIsRateLive(true);
-                    if (rateInputVersionRef.current === inputVersionAtRequestStart) {
+                    if (forceApply || (shouldAutoApplyLiveRateRef.current && rateInputVersionRef.current === inputVersionAtRequestStart)) {
                         setInterestRate(latestRate.rate.toFixed(2));
+                        shouldAutoApplyLiveRateRef.current = false;
                     }
                 } catch (error) {
                     if (requestId !== rateRequestIdRef.current) return;
-                    console.error('Unable to refresh the Mortgage News Daily rate.', error);
+                    console.error(`Unable to refresh the Mortgage News Daily ${currentRateProgram.summaryLabel} rate.`, error);
                     setRateError('Latest MND rate unavailable');
                 } finally {
                     if (requestId === rateRequestIdRef.current) {
@@ -733,8 +865,19 @@
             };
 
             useEffect(() => {
-                fetchLiveRate();
-            }, []);
+                if (!hasInitializedRateProgramRef.current) {
+                    hasInitializedRateProgramRef.current = true;
+                    fetchLiveRate();
+                    return;
+                }
+
+                setIsRateLive(false);
+                setLiveRateValue(null);
+                setRateDate("");
+                setRateError("");
+                shouldAutoApplyLiveRateRef.current = true;
+                fetchLiveRate(true);
+            }, [loanProgram]);
 
             useEffect(() => {
                 const normalizedMonthlyGoal = toNonNegativeNumber(monthlyGoal);
@@ -748,11 +891,12 @@
                 let high = 100000;
                 let highResults = calculateResultsForPrice({
                     price: high,
+                    loanProgramValue: loanProgram,
                     interestRateValue: interestRate,
                     taxRateValue: stateTaxRate,
                     loanTermValue: loanTerm,
                     downPaymentModeValue: downPaymentMode,
-                    downPaymentPercentValue: downPaymentPercent,
+                    downPaymentPercentValue: activeDownPaymentPercent,
                     downPaymentFixedValue: downPaymentFixed
                 });
                 let growthSteps = 0;
@@ -761,11 +905,12 @@
                     high *= 2;
                     highResults = calculateResultsForPrice({
                         price: high,
+                        loanProgramValue: loanProgram,
                         interestRateValue: interestRate,
                         taxRateValue: stateTaxRate,
                         loanTermValue: loanTerm,
                         downPaymentModeValue: downPaymentMode,
-                        downPaymentPercentValue: downPaymentPercent,
+                        downPaymentPercentValue: activeDownPaymentPercent,
                         downPaymentFixedValue: downPaymentFixed
                     });
                     growthSteps += 1;
@@ -775,11 +920,12 @@
                     const mid = (low + high) / 2;
                     const midResults = calculateResultsForPrice({
                         price: mid,
+                        loanProgramValue: loanProgram,
                         interestRateValue: interestRate,
                         taxRateValue: stateTaxRate,
                         loanTermValue: loanTerm,
                         downPaymentModeValue: downPaymentMode,
-                        downPaymentPercentValue: downPaymentPercent,
+                        downPaymentPercentValue: activeDownPaymentPercent,
                         downPaymentFixedValue: downPaymentFixed
                     });
                     if (midResults.totalPayment <= normalizedMonthlyGoal) {
@@ -791,11 +937,12 @@
 
                 const finalResults = calculateResultsForPrice({
                     price: low,
+                    loanProgramValue: loanProgram,
                     interestRateValue: interestRate,
                     taxRateValue: stateTaxRate,
                     loanTermValue: loanTerm,
                     downPaymentModeValue: downPaymentMode,
-                    downPaymentPercentValue: downPaymentPercent,
+                    downPaymentPercentValue: activeDownPaymentPercent,
                     downPaymentFixedValue: downPaymentFixed
                 });
                 const roundedPrincipalInterest = Math.round(finalResults.piti.principalInterest);
@@ -817,7 +964,7 @@
                         pmi: roundedPmi
                     }
                 });
-            }, [monthlyGoal, downPaymentMode, downPaymentPercent, downPaymentFixed, interestRate, loanTerm, stateTaxRate]);
+            }, [monthlyGoal, loanProgram, downPaymentMode, activeDownPaymentPercent, downPaymentFixed, interestRate, loanTerm, stateTaxRate]);
 
             const formatCurrency = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
 
@@ -929,16 +1076,18 @@
             const currentRateValue = Number.isFinite(parsedInterestRate) ? parsedInterestRate : (Number.isFinite(liveRateValue) ? liveRateValue : null);
             const formattedInterestRate = Number.isFinite(currentRateValue) ? currentRateValue.toFixed(2) : "N/A";
             const isUsingLiveRate = Number.isFinite(currentRateValue) && Number.isFinite(liveRateValue) && Math.abs(currentRateValue - liveRateValue) < 0.005;
+            const loanProgramLabel = currentRateProgram.label;
             const rateSummaryLine = isUsingLiveRate
-                ? `Rate used: ${formattedInterestRate}% from Mortgage News Daily 30-Year Fixed${rateDate ? ` (${rateDate})` : ""}.`
-                : `Rate used: ${formattedInterestRate}% entered manually in the calculator.`;
+                ? `Rate used: ${formattedInterestRate}% from Mortgage News Daily ${currentRateProgram.summaryLabel}${rateDate ? ` (${rateDate})` : ""}.`
+                : `Rate used: ${formattedInterestRate}% entered manually in the calculator for the ${loanProgramLabel} option.`;
             const rateSourceLine = isUsingLiveRate
                 ? `Source link: ${MND_RATE_SOURCE_URL}`
                 : Number.isFinite(liveRateValue)
-                    ? `Latest Mortgage News Daily 30-Year Fixed on load: ${liveRateValue.toFixed(2)}%${rateDate ? ` (${rateDate})` : ""}. Source: ${MND_RATE_SOURCE_URL}`
+                    ? `Latest Mortgage News Daily ${currentRateProgram.summaryLabel} on load: ${liveRateValue.toFixed(2)}%${rateDate ? ` (${rateDate})` : ""}. Source: ${MND_RATE_SOURCE_URL}`
                     : `Rate source link: ${MND_RATE_SOURCE_URL}`;
             const estimateMethodLine = `Taxes reflect the ${locationLabel} setting and homeowners insurance is estimated using this calculator's current assumptions.`;
             const shareSummaryLines = [
+                `Loan type: ${loanProgramLabel}`,
                 `Estimated monthly payment: ${formatCurrency(estimatedTotalMonthlyPayment)}`,
                 `Down payment: ${formatCurrency(results.downPaymentAmount)}`,
                 `${closingCostLabel}: ${formatCurrency(estimatedClosingCosts)}`,
@@ -1129,6 +1278,64 @@
                                             </div>
                                         </div>
 
+                                        <div className="space-y-4 font-black">
+                                            <div>
+                                                <div className="flex justify-between items-center mb-2 leading-none font-black">
+                                                    <label className="text-xs uppercase tracking-[0.15em] text-gray-400 font-black">Loan Type</label>
+                                                    <span className="text-[10px] uppercase tracking-widest text-gray-300 font-black">Select Program</span>
+                                                </div>
+                                                <div className="grid grid-cols-3 gap-1 no-print font-black">
+                                                    {Object.entries(RATE_PROGRAMS).map(([programKey, programConfig]) => (
+                                                        <button
+                                                            key={programKey}
+                                                            type="button"
+                                                            onClick={() => setLoanProgram(programKey)}
+                                                            className={`py-2.5 text-xs font-black rounded-md border transition-all ${
+                                                                loanProgram === programKey
+                                                                    ? 'border-[#b40101] bg-red-50 text-[#b40101]'
+                                                                    : 'border-gray-100 text-gray-400 hover:border-red-100 hover:text-[#b40101]'
+                                                            }`}
+                                                        >
+                                                            {programConfig.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div className="font-black">
+                                                <div className="flex items-start justify-between gap-3 mb-2 font-black">
+                                                    <label className="block text-xs uppercase leading-none text-gray-400 tracking-[0.15em] font-black pt-1">Rate %</label>
+                                                    <div className="text-right min-h-[28px] font-black">
+                                                        {isRateLive ? (
+                                                            <div className="flex flex-col items-end gap-0.5 font-black">
+                                                                <a href={MND_RATE_SOURCE_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-[10px] text-[#b40101] font-black uppercase underline-offset-2 hover:underline">
+                                                                    <Icon name="Activity" size={10} className="animate-pulse" />
+                                                                    Mortgage News Daily
+                                                                </a>
+                                                                <div className="text-[8px] text-gray-500 font-black uppercase italic leading-tight">{rateDate ? `${currentRateProgram.statusLabel} as of ${rateDate}` : `Latest ${currentRateProgram.statusLabel} rate`}</div>
+                                                                {rateError && <div className="text-[8px] text-amber-600 font-black uppercase leading-tight">{rateError}</div>}
+                                                            </div>
+                                                        ) : (
+                                                            <div className="text-[10px] text-gray-300 uppercase font-black leading-tight">
+                                                                {rateError || (isRefreshingRate ? `Refreshing ${currentRateProgram.statusLabel} rate` : `Fetching ${currentRateProgram.statusLabel} rate`)}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col sm:flex-row items-stretch gap-2 font-black">
+                                                    <input type="number" step="0.01" value={interestRate} placeholder={liveRateValue ? liveRateValue.toFixed(2) : "6.25"} onChange={(e) => {
+                                                        shouldAutoApplyLiveRateRef.current = false;
+                                                        rateInputVersionRef.current += 1;
+                                                        setInterestRate(e.target.value);
+                                                    }} className="w-full min-w-0 bg-gray-50 border-2 border-gray-100 rounded-lg py-3 px-4 focus:border-[#b40101] outline-none font-black text-xl" />
+                                                    <button type="button" onClick={() => fetchLiveRate(true)} disabled={isRefreshingRate} title={`Reset to the latest Mortgage News Daily ${currentRateProgram.statusLabel} rate`} className="w-full sm:w-auto sm:min-w-[92px] shrink-0 inline-flex min-h-[52px] items-center justify-center gap-1.5 px-4 rounded-lg border-2 border-[#b40101] bg-[#b40101] text-white hover:bg-red-700 hover:border-red-700 transition-colors leading-none text-[9px] uppercase font-black shadow-sm disabled:opacity-50 disabled:bg-[#b40101] disabled:border-[#b40101] disabled:text-white">
+                                                        <Icon name="RefreshCw" size={10} color="white" className={isRefreshingRate ? "animate-spin" : ""} />
+                                                        <span>{isRefreshingRate ? "Updating" : "Reset"}</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div>
                                             <div className="flex justify-between items-center mb-2 leading-none font-black">
                                                 <label className="text-xs uppercase tracking-[0.15em] text-gray-400 font-black">Down Payment</label>
@@ -1136,13 +1343,34 @@
                                             </div>
                                             <div className="space-y-3 font-black">
                                                 <div className="grid grid-cols-4 gap-1 no-print font-black">
-                                                    {PRESET_PERCENTAGES.map(pct => (
-                                                        <button key={pct} onClick={() => {
-                                                            setDownPaymentMode('percentage');
-                                                            setDownPaymentPercent(pct);
-                                                        }} className={`py-2 text-xs font-black rounded-md border transition-all ${downPaymentMode === 'percentage' && downPaymentPercent === pct ? 'border-[#b40101] bg-red-50 text-[#b40101]' : 'border-gray-100 text-gray-400'}`}>{pct}%</button>
-                                                    ))}
-                                                    <button type="button" onClick={() => setDownPaymentMode('custom')} className={`col-span-2 py-2 text-xs font-black rounded-md border transition-all ${downPaymentMode === 'custom' ? 'border-[#b40101] bg-red-50 text-[#b40101]' : 'border-gray-100 text-gray-400'}`}>Custom $</button>
+                                                    {PRESET_PERCENTAGES.map((pct) => {
+                                                        const disabled = isPresetDisabled(pct);
+                                                        const isActive = downPaymentMode === 'percentage' && activeDownPaymentPercent === pct;
+
+                                                        return (
+                                                            <button
+                                                                key={pct}
+                                                                type="button"
+                                                                disabled={disabled}
+                                                                onClick={() => {
+                                                                    if (disabled) return;
+                                                                    setDownPaymentMode('percentage');
+                                                                    setDownPaymentPercent(pct);
+                                                                }}
+                                                                title={disabled ? `${currentRateProgram.label} examples start at ${currentRateProgram.minimumDownPaymentPercent}% down` : `${pct}% down payment`}
+                                                                className={`py-2 text-xs font-black rounded-md border transition-all ${
+                                                                    disabled
+                                                                        ? 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300'
+                                                                        : isActive
+                                                                            ? 'border-[#b40101] bg-red-50 text-[#b40101]'
+                                                                            : 'border-gray-100 text-gray-400 hover:border-red-100 hover:text-[#b40101]'
+                                                                }`}
+                                                            >
+                                                                {pct}%
+                                                            </button>
+                                                        );
+                                                    })}
+                                                    <button type="button" onClick={() => setDownPaymentMode('custom')} className={`col-span-2 py-2 text-xs font-black rounded-md border transition-all ${downPaymentMode === 'custom' ? 'border-[#b40101] bg-red-50 text-[#b40101]' : 'border-gray-100 text-gray-400 hover:border-red-100 hover:text-[#b40101]'}`}>Custom $</button>
                                                 </div>
                                                 {downPaymentMode === 'custom' && (
                                                     <div className="font-black">
@@ -1167,40 +1395,6 @@
                                                     <p className="text-[11px] leading-relaxed text-gray-500 font-black">
                                                         {DOWN_PAYMENT_TIP_TEXT}
                                                     </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="font-black">
-                                            <div className="font-black">
-                                                <div className="flex items-start justify-between gap-3 mb-2 font-black">
-                                                    <label className="block text-xs uppercase leading-none text-gray-400 tracking-[0.15em] font-black pt-1">Rate %</label>
-                                                    <div className="text-right min-h-[28px] font-black">
-                                                        {isRateLive ? (
-                                                            <div className="flex flex-col items-end gap-0.5 font-black">
-                                                                <a href={MND_RATE_SOURCE_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-[10px] text-[#b40101] font-black uppercase underline-offset-2 hover:underline">
-                                                                    <Icon name="Activity" size={10} className="animate-pulse" />
-                                                                    Mortgage News Daily
-                                                                </a>
-                                                                <div className="text-[8px] text-gray-500 font-black uppercase italic leading-tight">{rateDate ? `30 year fixed as of ${rateDate}` : "Latest 30 year fixed rate"}</div>
-                                                                {rateError && <div className="text-[8px] text-amber-600 font-black uppercase leading-tight">{rateError}</div>}
-                                                            </div>
-                                                        ) : (
-                                                            <div className="text-[10px] text-gray-300 uppercase font-black leading-tight">
-                                                                {rateError || (isRefreshingRate ? "Refreshing latest rate" : "Fetching 30 year fixed rate")}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <div className="flex flex-col sm:flex-row items-stretch gap-2 font-black">
-                                                    <input type="number" step="0.01" value={interestRate} placeholder={liveRateValue ? liveRateValue.toFixed(2) : "6.25"} onChange={(e) => {
-                                                        rateInputVersionRef.current += 1;
-                                                        setInterestRate(e.target.value);
-                                                    }} className="w-full min-w-0 bg-gray-50 border-2 border-gray-100 rounded-lg py-3 px-4 focus:border-[#b40101] outline-none font-black text-xl" />
-                                                    <button type="button" onClick={fetchLiveRate} disabled={isRefreshingRate} title="Reset to the latest Mortgage News Daily 30 year fixed rate" className="w-full sm:w-auto sm:min-w-[92px] shrink-0 inline-flex min-h-[52px] items-center justify-center gap-1.5 px-4 rounded-lg border-2 border-[#b40101] bg-[#b40101] text-white hover:bg-red-700 hover:border-red-700 transition-colors leading-none text-[9px] uppercase font-black shadow-sm disabled:opacity-50 disabled:bg-[#b40101] disabled:border-[#b40101] disabled:text-white">
-                                                        <Icon name="RefreshCw" size={10} color="white" className={isRefreshingRate ? "animate-spin" : ""} />
-                                                        <span>{isRefreshingRate ? "Updating" : "Reset"}</span>
-                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
