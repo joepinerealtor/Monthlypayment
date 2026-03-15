@@ -697,6 +697,13 @@
                 return getPMIRate(ltvPercent);
             };
 
+            const handleLoanProgramChange = (programKey) => {
+                const nextProgram = RATE_PROGRAMS[programKey] || RATE_PROGRAMS.conventional;
+                setLoanProgram(programKey);
+                setDownPaymentMode("percentage");
+                setDownPaymentPercent(nextProgram.defaultDownPaymentPercent);
+            };
+
             const calculateResultsForPrice = ({
                 price,
                 loanProgramValue,
@@ -1289,7 +1296,7 @@
                                                         <button
                                                             key={programKey}
                                                             type="button"
-                                                            onClick={() => setLoanProgram(programKey)}
+                                                            onClick={() => handleLoanProgramChange(programKey)}
                                                             className={`py-2.5 text-xs font-black rounded-md border transition-all ${
                                                                 loanProgram === programKey
                                                                     ? 'border-[#b40101] bg-red-50 text-[#b40101]'
